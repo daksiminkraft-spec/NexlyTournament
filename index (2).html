@@ -1,0 +1,2259 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="dark light"/>
+<title>Nexly Rankings</title>
+<style>
+:root{
+  --bg0:#070a12; --bg1:#0b1020;
+  --card:rgba(255,255,255,.06); --card2:rgba(255,255,255,.08);
+  --stroke:rgba(255,255,255,.12); --stroke2:rgba(255,255,255,.18);
+  --txt:#eaf0ff; --mut:#a9b4d0; --mut2:#7d89a8;
+  --sh1:0 18px 40px rgba(0,0,0,.40); --sh2:0 10px 24px rgba(0,0,0,.35);
+  --blur:14px; --r1:18px; --r2:14px;
+  --acc:#78b7ff; --acc2:#b478ff; --ok:#42d39b; --bad:#ff5c8a; --warn:#ffd166;
+  --sbw:320px; --top:64px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+[data-theme="light"]{
+  --bg0:#f6f7fb; --bg1:#edf0f9;
+  --card:rgba(20,30,60,.06); --card2:rgba(20,30,60,.08);
+  --stroke:rgba(20,30,60,.12); --stroke2:rgba(20,30,60,.18);
+  --txt:#0e1530; --mut:#3e4a6a; --mut2:#5f6b8d;
+  --sh1:0 18px 40px rgba(15,20,40,.12); --sh2:0 10px 24px rgba(15,20,40,.10);
+  --blur:12px; --acc:#2f7bff; --acc2:#7e3bff; --ok:#14b07c; --bad:#e03865; --warn:#c48a00;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{
+  margin:0; font-family:var(--sans); color:var(--txt); overflow:hidden;
+  background:
+    radial-gradient(1200px 800px at 12% 12%, rgba(120,183,255,.18), transparent 55%),
+    radial-gradient(900px 700px at 75% 20%, rgba(180,120,255,.16), transparent 60%),
+    radial-gradient(1000px 800px at 60% 80%, rgba(66,211,155,.10), transparent 65%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
+}
+.grain{pointer-events:none; position:fixed; inset:0; opacity:.22; mix-blend-mode:overlay; filter:blur(.2px);
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.03), rgba(255,255,255,.03) 1px, transparent 1px, transparent 3px);}
+.glass{background:var(--card); border:1px solid var(--stroke); box-shadow:var(--sh2);
+  backdrop-filter: blur(var(--blur)); -webkit-backdrop-filter: blur(var(--blur));}
+
+.app{height:100%; display:grid; grid-template-rows:var(--top) 1fr;}
+.topbar{height:var(--top); margin:12px 12px 0; border-radius:calc(var(--r1) + 8px); padding:0 16px;
+  display:flex; align-items:center; justify-content:space-between; position:relative; z-index:20;}
+.brand{display:flex; align-items:center; gap:12px; min-width:240px;}
+.logo{
+  width:38px; height:38px; border-radius:12px;
+  background:
+    radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.35), transparent 60%),
+    linear-gradient(135deg, rgba(120,183,255,.95), rgba(180,120,255,.92));
+  border:1px solid rgba(255,255,255,.22); box-shadow:0 12px 26px rgba(120,183,255,.18);
+}
+.brand h1{margin:0; font-size:14px; letter-spacing:.4px; line-height:1.2;}
+.brand .sub{font-size:12px; color:var(--mut); margin-top:2px;}
+
+.actions{display:flex; align-items:center; gap:10px; justify-content:flex-end; flex-wrap:wrap;}
+.pill{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--stroke);
+  background:rgba(255,255,255,.04); color:var(--mut); display:inline-flex; align-items:center; gap:8px;}
+
+.btn{
+  appearance:none; border:1px solid var(--stroke); background:var(--card2); color:var(--txt);
+  border-radius:14px; padding:10px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:10px;
+  box-shadow:0 10px 18px rgba(0,0,0,.18);
+  transition:transform .14s ease, border-color .14s ease, background .14s ease;
+  user-select:none;
+}
+.btn:hover{transform:translateY(-1px); border-color:var(--stroke2)}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn.primary{border-color:rgba(120,183,255,.35); background:linear-gradient(135deg, rgba(120,183,255,.22), rgba(180,120,255,.14));}
+.btn.ghost{background:transparent; box-shadow:none;}
+.btn.bad{border-color:rgba(255,92,138,.35); background:linear-gradient(135deg, rgba(255,92,138,.12), rgba(255,209,102,.10));}
+
+.icon{width:18px; height:18px; display:inline-block; flex:0 0 auto; opacity:.92}
+.mono{font-family:var(--mono)}
+
+.hamb{width:44px; height:44px; border-radius:14px; border:1px solid var(--stroke); background:rgba(255,255,255,.05);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .14s ease, border-color .14s ease;}
+.hamb:hover{transform:translateY(-1px); border-color:var(--stroke2)}
+.lines{width:18px; height:14px; position:relative}
+.lines span{position:absolute; left:0; right:0; height:2px; border-radius:99px;
+  background:linear-gradient(90deg, rgba(120,183,255,.95), rgba(180,120,255,.95));
+  transition:transform .18s ease, top .18s ease, opacity .18s ease;}
+.lines span:nth-child(1){top:0}
+.lines span:nth-child(2){top:6px; opacity:.92}
+.lines span:nth-child(3){top:12px; opacity:.84}
+.sidebar-open .lines span:nth-child(1){top:6px; transform:rotate(45deg)}
+.sidebar-open .lines span:nth-child(2){opacity:0; transform:scaleX(.5)}
+.sidebar-open .lines span:nth-child(3){top:6px; transform:rotate(-45deg)}
+
+.overlay{position:fixed; inset:0; background:rgba(0,0,0,.35); opacity:0; pointer-events:none; z-index:25; transition:opacity .18s ease;}
+.overlay.show{opacity:1; pointer-events:auto;}
+.sidebar{
+  position:fixed; top:88px; left:12px; bottom:12px; width:var(--sbw);
+  border-radius:calc(var(--r1) + 10px); padding:14px; z-index:30; overflow:hidden;
+  transform:translateX(calc(-1 * (var(--sbw) + 24px))); transition:transform .22s ease;
+}
+.sidebar.open{transform:translateX(0)}
+.sTitle{font-size:12px; color:var(--mut2); letter-spacing:.12em; margin:14px 8px 8px; text-transform:uppercase;}
+.nav{display:flex; flex-direction:column; gap:8px; margin-top:6px;}
+.nav a{
+  text-decoration:none; color:var(--txt); padding:10px 12px; border-radius:14px;
+  border:1px solid transparent; display:flex; align-items:center; gap:10px;
+  transition:background .14s ease, border-color .14s ease, transform .14s ease;
+}
+.nav a:hover{background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.10); transform:translateY(-1px)}
+.nav a.active{background:linear-gradient(135deg, rgba(120,183,255,.18), rgba(180,120,255,.10)); border-color:rgba(120,183,255,.25); box-shadow:0 14px 26px rgba(0,0,0,.18);}
+.sbFoot{
+  position:absolute; left:14px; right:14px; bottom:14px; padding:12px; border-radius:16px;
+  border:1px solid var(--stroke); background:rgba(255,255,255,.04);
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.mini{font-size:12px; color:var(--mut); line-height:1.25}
+.mini strong{color:var(--txt)}
+
+.main{height:calc(100vh - var(--top)); padding:14px 12px 12px; overflow:auto; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.18) transparent;}
+.main::-webkit-scrollbar{width:10px}
+.main::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14); border-radius:99px; border:2px solid transparent; background-clip:padding-box;}
+.content{max-width:1200px; margin:0 auto; padding-bottom:76px;}
+
+.head{display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin:14px 6px 16px;}
+.head h2{margin:0; font-size:22px; letter-spacing:.2px;}
+.desc{margin-top:6px; color:var(--mut); font-size:13px; max-width:80ch; line-height:1.45;}
+.grid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px;}
+.card{border-radius:var(--r1); padding:14px;}
+.cardH{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+.cTitle{display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.2px;}
+.cTitle small{color:var(--mut); font-weight:600;}
+.tag{font-size:12px; border:1px solid var(--stroke); background:rgba(255,255,255,.04); border-radius:999px; padding:6px 10px; color:var(--mut); display:inline-flex; gap:8px; align-items:center; white-space:nowrap;}
+.tag.ok{border-color:rgba(66,211,155,.35); color:var(--txt)}
+.tag.warn{border-color:rgba(255,209,102,.35); color:var(--txt)}
+.tag.bad{border-color:rgba(255,92,138,.35); color:var(--txt)}
+.toolbar{
+  display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;
+  padding:12px; border-radius:var(--r1); border:1px solid var(--stroke); background:rgba(255,255,255,.04);
+}
+.field{display:flex; flex-direction:column; gap:6px; min-width:160px;}
+.field label{font-size:12px; color:var(--mut2); letter-spacing:.06em; text-transform:uppercase;}
+.input,select,textarea{
+  width:100%; padding:10px 12px; border-radius:14px; border:1px solid var(--stroke);
+  background:rgba(0,0,0,.12); color:var(--txt); outline:none; transition:border-color .14s ease, box-shadow .14s ease;
+  font-family:var(--sans);
+}
+[data-theme="light"] .input,[data-theme="light"] select,[data-theme="light"] textarea{background:rgba(255,255,255,.55)}
+.input:focus,select:focus,textarea:focus{border-color:rgba(120,183,255,.45); box-shadow:0 0 0 3px rgba(120,183,255,.12)}
+textarea{min-height:110px; resize:vertical}
+.hint{font-size:12px; color:var(--mut); line-height:1.4}
+.chip{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--stroke);
+  background:rgba(255,255,255,.04); font-size:12px; color:var(--mut); white-space:nowrap;}
+
+/* Avatar */
+.av{display:inline-flex; align-items:center; gap:10px;}
+.avatar{
+  width:34px; height:34px; border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  background: linear-gradient(135deg, rgba(120,183,255,.55), rgba(180,120,255,.45));
+  box-shadow:0 10px 18px rgba(0,0,0,.18);
+  overflow:hidden; flex:0 0 auto; position:relative;
+}
+.avatar img{width:100%; height:100%; object-fit:cover; display:block}
+.avaTxt{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-weight:900; letter-spacing:.5px; color:rgba(255,255,255,.92); text-shadow:0 8px 18px rgba(0,0,0,.35);
+  font-size:12px;
+}
+.avatar.big{width:58px; height:58px; border-radius:16px}
+.avatar.big .avaTxt{font-size:15px}
+
+/* Champion + podium */
+.champ{
+  border-radius:calc(var(--r1) + 10px); padding:16px;
+  border:1px solid rgba(120,183,255,.22);
+  background:
+    radial-gradient(400px 180px at 20% 10%, rgba(120,183,255,.18), transparent 60%),
+    radial-gradient(360px 240px at 80% 0%, rgba(180,120,255,.16), transparent 65%),
+    rgba(255,255,255,.05);
+  box-shadow:var(--sh1); position:relative; overflow:hidden;
+}
+.champ:before{content:""; position:absolute; inset:-40%; opacity:.35; transform:rotate(14deg);
+  background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), transparent 35%);
+  animation:flo 7s ease-in-out infinite;}
+@keyframes flo{0%,100%{transform:translate(-2%,-2%) rotate(14deg)}50%{transform:translate(2%,2%) rotate(14deg)}}
+.champ>*{position:relative; z-index:1}
+.chTop{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+.chTitle{font-weight:900; font-size:13px; letter-spacing:.10em; text-transform:uppercase; color:var(--mut)}
+.chNick{margin-top:6px; font-size:24px; font-weight:900; letter-spacing:.2px; line-height:1.1}
+.chMeta{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
+
+.podium{
+  display:grid; grid-template-columns:repeat(12,1fr); gap:14px;
+}
+.pCard{
+  grid-column:span 4;
+  border-radius:18px; border:1px solid var(--stroke);
+  background:rgba(255,255,255,.04);
+  padding:12px; position:relative;
+}
+.pRank{
+  position:absolute; top:10px; right:10px;
+  font-weight:900; font-size:12px; letter-spacing:.08em;
+  padding:6px 10px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.04); color:var(--mut);
+}
+.pNick{font-weight:900; margin-top:10px}
+.pVal{margin-top:6px; color:var(--mut); font-size:12px; line-height:1.3}
+.pCard:nth-child(1){border-color:rgba(255,209,102,.30)}
+.pCard:nth-child(2){border-color:rgba(180,120,255,.26)}
+.pCard:nth-child(3){border-color:rgba(120,183,255,.26)}
+
+/* Table */
+.table{overflow:auto; border-radius:var(--r1); border:1px solid var(--stroke); background:rgba(255,255,255,.03);}
+table{width:100%; border-collapse:collapse; min-width:920px;}
+th,td{padding:12px; border-bottom:1px solid rgba(255,255,255,.06); text-align:left; font-size:13px; vertical-align:middle;}
+th{position:sticky; top:0; background:rgba(10,14,26,.65); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  color:var(--mut); letter-spacing:.06em; text-transform:uppercase; font-size:12px; z-index:2;}
+[data-theme="light"] th{background:rgba(240,242,252,.85)}
+tr:hover td{background:rgba(120,183,255,.06)}
+.link{color:var(--txt); text-decoration:none; border-bottom:1px dashed rgba(120,183,255,.45); padding-bottom:1px;}
+.link:hover{border-bottom-color:rgba(180,120,255,.55)}
+.rank{font-weight:900; font-size:14px}
+
+/* Calendar */
+.cal{border-radius:var(--r1); border:1px solid var(--stroke); background:rgba(255,255,255,.03); overflow:hidden;}
+.calH{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px; border-bottom:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03);}
+.calGrid{display:grid; grid-template-columns:repeat(7,1fr);}
+.dow{padding:10px; font-size:12px; color:var(--mut); border-bottom:1px solid rgba(255,255,255,.06); background:rgba(255,255,255,.02);}
+.cell{min-height:92px; padding:10px; border-right:1px solid rgba(255,255,255,.06); border-bottom:1px solid rgba(255,255,255,.06); background:rgba(255,255,255,.01); overflow:hidden;}
+.cell:nth-child(7n){border-right:none}
+.day{font-size:12px; color:var(--mut); display:flex; align-items:center; justify-content:space-between;}
+.badge{width:7px; height:7px; border-radius:99px; background:rgba(120,183,255,.85); box-shadow:0 0 0 3px rgba(120,183,255,.15)}
+.evts{margin-top:8px; display:flex; flex-direction:column; gap:6px}
+.evt{font-size:12px; padding:6px 8px; border-radius:12px; border:1px solid rgba(255,255,255,.10); background:rgba(120,183,255,.06);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; transition:transform .12s ease, border-color .12s ease;}
+.evt:hover{transform:translateY(-1px); border-color:rgba(120,183,255,.28)}
+
+/* Modals */
+.mwrap{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:18px; z-index:60;
+  background:rgba(0,0,0,.42); opacity:0; pointer-events:none; transition:opacity .18s ease;}
+.mwrap.show{opacity:1; pointer-events:auto;}
+.modal{width:min(980px,100%); border-radius:calc(var(--r1) + 12px); border:1px solid var(--stroke);
+  background:rgba(255,255,255,.06); box-shadow:var(--sh1); overflow:hidden;
+  backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur));
+  transform:translateY(8px) scale(.985); transition:transform .18s ease;}
+.mwrap.show .modal{transform:translateY(0) scale(1)}
+.mh{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px;
+  border-bottom:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04);}
+.mclose{width:42px; height:42px; border-radius:14px; border:1px solid var(--stroke); background:rgba(255,255,255,.05);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;}
+.mb{padding:14px; display:grid; grid-template-columns:1.1fr .9fr; gap:14px;}
+.tabs{display:flex; gap:10px; padding:6px; border-radius:16px; border:1px solid var(--stroke); background:rgba(255,255,255,.03);}
+.tab{flex:1; padding:10px 12px; border-radius:14px; border:1px solid transparent; background:transparent; cursor:pointer;
+  color:var(--mut); font-weight:900; letter-spacing:.2px;}
+.tab.active{color:var(--txt); background:linear-gradient(135deg, rgba(120,183,255,.18), rgba(180,120,255,.10)); border-color:rgba(120,183,255,.25)}
+.panel{border-radius:var(--r1); border:1px solid var(--stroke); background:rgba(255,255,255,.03); padding:12px;}
+.preview{display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:10px; border:1px dashed rgba(255,255,255,.18); border-radius:14px; background:rgba(255,255,255,.02);}
+
+/* Toasts */
+.toasts{position:fixed; right:14px; bottom:14px; z-index:80; display:flex; flex-direction:column; gap:10px; width:min(420px, calc(100% - 28px));}
+.toast{border-radius:18px; border:1px solid var(--stroke); background:rgba(255,255,255,.07); box-shadow:var(--sh2);
+  backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur));
+  padding:12px; display:flex; gap:10px; align-items:flex-start; animation:pop .18s ease;}
+@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.dot{width:10px; height:10px; border-radius:99px; margin-top:5px; background:rgba(120,183,255,.9); box-shadow:0 0 0 4px rgba(120,183,255,.14)}
+.toast.ok .dot{background:rgba(66,211,155,.95); box-shadow:0 0 0 4px rgba(66,211,155,.16)}
+.toast.err .dot{background:rgba(255,92,138,.95); box-shadow:0 0 0 4px rgba(255,92,138,.16)}
+.toast.warn .dot{background:rgba(255,209,102,.95); box-shadow:0 0 0 4px rgba(255,209,102,.16)}
+.tT{font-weight:900; letter-spacing:.2px}
+.tB{color:var(--mut); font-size:13px; line-height:1.35; margin-top:3px}
+.tx{margin-left:auto; width:36px; height:36px; border-radius:14px; border:1px solid var(--stroke); background:rgba(255,255,255,.04);
+  cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:.9}
+
+/* Footer */
+.footer{position:fixed; left:0; right:0; bottom:0; padding:10px 12px; z-index:10; pointer-events:none;}
+.fIn{max-width:1200px; margin:0 auto; border-radius:18px; border:1px solid var(--stroke); background:rgba(255,255,255,.04);
+  padding:10px 12px; display:flex; gap:10px; align-items:center; justify-content:space-between; pointer-events:auto;
+  backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur));}
+.footer small{color:var(--mut)}
+
+@media (max-width:980px){.mb{grid-template-columns:1fr}.brand{min-width:auto}.pCard{grid-column:span 12}}
+@media (max-width:720px){:root{--sbw:86vw}.topbar{margin:10px 10px 0}.sidebar{top:84px;left:10px;bottom:10px}.head{flex-direction:column;align-items:flex-start} table{min-width:820px}}
+</style>
+</head>
+<body data-theme="dark">
+<div class="grain"></div>
+
+<div id="overlay" class="overlay" aria-hidden="true"></div>
+
+<aside id="sidebar" class="sidebar glass" aria-label="Навигация">
+  <div class="sTitle">Игрокам</div>
+  <nav id="nav" class="nav"></nav>
+
+  <div class="sTitle">Служебное</div>
+  <nav id="navSys" class="nav"></nav>
+
+  <div class="sbFoot">
+    <div class="mini">
+      <div><strong id="sbUser">Гость</strong></div>
+      <div id="sbRole">Просмотр рейтингов</div>
+    </div>
+    <button class="btn ghost" id="sbLogout" style="display:none" title="Выйти">Выйти</button>
+  </div>
+</aside>
+
+<div class="app">
+  <header class="topbar glass">
+    <div class="brand">
+      <div class="hamb" id="hamb" role="button" tabindex="0" aria-label="Меню">
+        <div class="lines" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Nexly Rankings</h1>
+          <div class="sub">Рейтинги • Турниры • Спидран • PvP</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <span class="pill" id="pillUpd">обновлено: —</span>
+      <button class="btn" id="themeBtn" title="Тема">Тема</button>
+      <button class="btn primary" id="profileBtn" title="Профиль"><span id="profileLabel">Гость</span></button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="content" id="view"></div>
+  </main>
+</div>
+
+<footer class="footer">
+  <div class="fIn">
+    <small>© <span id="year"></span> Nexly Rankings • демо (localStorage)</small>
+    <small>Подсказка: ☰ меню слева • профиль справа</small>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="mwrap" id="authWrap" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Вход / Регистрация">
+    <div class="mh">
+      <div style="font-weight:900;letter-spacing:.2px">Профиль</div>
+      <button class="mclose" id="authClose" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="mb">
+      <div class="panel">
+        <div class="tabs">
+          <button class="tab active" id="tabLogin" type="button">Вход</button>
+          <button class="tab" id="tabReg" type="button">Регистрация</button>
+        </div>
+        <div style="height:12px"></div>
+
+        <form id="loginForm" autocomplete="on">
+          <div class="grid">
+            <div class="field" style="grid-column:span 12">
+              <label>Логин</label>
+              <input class="input" name="username" required placeholder="Например: Steve"/>
+            </div>
+            <div class="field" style="grid-column:span 12">
+              <label>Пароль</label>
+              <input class="input" name="password" type="password" required placeholder="••••••••"/>
+              <div class="hint">Гость может смотреть всё. Заявки — только после входа.</div>
+            </div>
+            <div style="grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary" type="submit">Войти</button>
+              <button class="btn" type="button" id="guestBtn">Продолжить как гость</button>
+            </div>
+          </div>
+        </form>
+
+        <form id="regForm" style="display:none" autocomplete="on">
+          <div class="grid">
+            <div class="field" style="grid-column:span 12">
+              <label>Новый логин</label>
+              <input class="input" name="username" required placeholder="NexlyPlayer"/>
+              <div class="hint">3–20 символов, только A-Z a-z 0-9 _</div>
+            </div>
+            <div class="field" style="grid-column:span 12">
+              <label>Пароль</label>
+              <input class="input" name="password" type="password" required placeholder="Минимум 6 символов"/>
+            </div>
+            <div class="field" style="grid-column:span 12">
+              <label>Повтор пароля</label>
+              <input class="input" name="password2" type="password" required placeholder="Ещё раз"/>
+            </div>
+            <div style="grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary" type="submit">Зарегистрироваться</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="cTitle"><span class="mono">Статус</span></div>
+        <div style="height:8px"></div>
+        <div class="chip" id="authStatus">Не вошли</div>
+        <div style="height:10px"></div>
+        <div class="hint">
+          • Игрокам: рейтинги, календарь, заявки.<br/>
+          • Админам: админ-панель в меню ☰.
+        </div>
+        <div style="height:12px"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" type="button" id="goApply">Подать заявку</button>
+          <button class="btn bad" type="button" id="logoutBtn" style="display:none">Выйти</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GENERIC MODAL -->
+<div class="mwrap" id="gmWrap" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="mh">
+      <div id="gmTitle" style="font-weight:900">Окно</div>
+      <button class="mclose" id="gmClose" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="mb" style="grid-template-columns:1fr">
+      <div class="panel" id="gmBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+/* =========================
+   CONFIG
+   ========================= */
+const APP_KEY = "nexly_rankings_v2";
+
+const ADMIN_USER = "NexlyMine";
+const ADMIN_PASS_HASH = "qqweed38dh82ehxn[eoh38"; // demo placeholder (не sha256)
+
+const ROUTES = [
+  {path:"#/", id:"home", label:"Главная"},
+  {path:"#/tournaments", id:"tournaments", label:"Рейтинг: Турниры"},
+  {path:"#/speedrun", id:"speedrun", label:"Рейтинг: Спидран"},
+  {path:"#/pvp", id:"pvp", label:"Рейтинг: PvP"},
+  {path:"#/calendar", id:"calendar", label:"Календарь турниров"},
+  {path:"#/apply", id:"apply", label:"Подать заявку"},
+  {path:"#/support", id:"support", label:"Техподдержка"},
+];
+
+/* =========================
+   Helpers
+   ========================= */
+const $ = (s, r=document)=>r.querySelector(s);
+const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+const esc = (s)=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+const isoNow = ()=>new Date().toISOString();
+const fmtDate = (iso)=>{
+  if(!iso) return "—";
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2,"0");
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  return `${dd}.${mm}.${d.getFullYear()}`;
+};
+const fmtDateTime = (iso)=>{
+  if(!iso) return "—";
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2,"0");
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const hh = String(d.getHours()).padStart(2,"0");
+  const mi = String(d.getMinutes()).padStart(2,"0");
+  return `${dd}.${mm}.${d.getFullYear()} ${hh}:${mi}`;
+};
+const uid = (p="id")=>`${p}_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
+const debounce = (fn, ms=180)=>{ let t; return (...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a), ms)}; };
+
+function toast(type, title, body, timeout=3200){
+  const el = document.createElement("div");
+  el.className = `toast ${type||""}`.trim();
+  el.innerHTML = `
+    <div class="dot"></div>
+    <div>
+      <div class="tT">${esc(title||"Сообщение")}</div>
+      <div class="tB">${esc(body||"")}</div>
+    </div>
+    <button class="tx" aria-label="Закрыть">✕</button>
+  `;
+  $("#toasts").appendChild(el);
+  const close = ()=>{
+    el.style.transition="transform .16s ease,opacity .16s ease";
+    el.style.opacity="0"; el.style.transform="translateY(8px)";
+    setTimeout(()=>el.remove(), 180);
+  };
+  el.querySelector(".tx").onclick = close;
+  if(timeout>0) setTimeout(close, timeout);
+}
+
+/* =========================
+   localStorage + seed
+   ========================= */
+function loadState(){
+  try{
+    const raw = localStorage.getItem(APP_KEY);
+    if(!raw) return null;
+    const st = JSON.parse(raw);
+    return st && typeof st==="object" ? st : null;
+  }catch(e){ return null; }
+}
+function saveState(){ localStorage.setItem(APP_KEY, JSON.stringify(state)); }
+function resetDemo(){
+  localStorage.removeItem(APP_KEY);
+  state = seedState();
+  saveState();
+  toast("ok","Готово","Демо-данные сброшены.");
+  syncUI(); route();
+}
+
+function seedState(){
+  const now = isoNow();
+  const mk = (place,nick,points,country,platform,proofUrl,version,region,season,updatedAt,avatar)=>(
+    {place,nick,points,country,platform,proofUrl,version,region,season,updatedAt,avatar:avatar||""}
+  );
+  const tournaments = [
+    {id:uid("t"), name:"Nexly Cup: Winter Clash", type:"tournament", season:"S1", region:"EU", version:"1.16.5",
+      dateStart:new Date(Date.now()+86400000*6).toISOString(),
+      dateEnd:new Date(Date.now()+86400000*6 + 3*3600000).toISOString(),
+      location:"Online", status:"scheduled", winnerNick:"Daksi", winnerAvatar:"", proofUrl:"https://example.com/proof/winter", updatedAt:now},
+    {id:uid("t"), name:"Speedrun Sprint: Any% Weekend", type:"speedrun", season:"S1", region:"Global", version:"1.16.1",
+      dateStart:new Date(Date.now()+86400000*9).toISOString(),
+      dateEnd:new Date(Date.now()+86400000*9 + 4*3600000).toISOString(),
+      location:"Online", status:"scheduled", winnerNick:"NexlyRunner", winnerAvatar:"", proofUrl:"https://example.com/proof/any", updatedAt:now},
+    {id:uid("t"), name:"Nexly Arena: Duels Open", type:"pvp", season:"S1", region:"EU", version:"1.20.1",
+      dateStart:new Date(Date.now()+86400000*14).toISOString(),
+      dateEnd:new Date(Date.now()+86400000*14 + 2*3600000).toISOString(),
+      location:"Online", status:"scheduled", winnerNick:"Octioner", winnerAvatar:"", proofUrl:"https://example.com/proof/duels", updatedAt:now},
+    {id:uid("t"), name:"Nexly Cup: Autumn Finals", type:"tournament", season:"S0", region:"EU", version:"1.16.5",
+      dateStart:new Date(Date.now()-86400000*120).toISOString(),
+      dateEnd:new Date(Date.now()-86400000*120 + 3*3600000).toISOString(),
+      location:"Online", status:"finished", winnerNick:"Karnaushanka", winnerAvatar:"", proofUrl:"https://example.com/proof/autumn", updatedAt:new Date(Date.now()-86400000*119).toISOString()},
+  ];
+
+  return {
+    meta:{ theme:"dark", updatedAt:now, appVersion:"2.0" },
+    auth:{ currentUser:null },
+    users:[],
+    tournaments,
+    applications:[],
+    leaderboards:{
+      tournaments:{ updatedAt:now, entries:[
+        mk(1,"Daksi",1980,"BY","Java","https://example.com/proof/tourneys/daksi","1.16.5","EU","S1",now,""),
+        mk(2,"Octioner",1810,"DE","Java","https://example.com/proof/tourneys/octioner","1.16.5","EU","S1",now,""),
+        mk(3,"NexlyMine",1700,"PL","Java","https://example.com/proof/tourneys/nexlymine","1.16.5","EU","S1",now,""),
+        mk(4,"CrystalFox",1580,"FR","Bedrock","https://example.com/proof/tourneys/crystal","1.20.1","EU","S1",now,""),
+        mk(5,"SkyViper",1440,"ES","Java","https://example.com/proof/tourneys/sky","1.20.1","EU","S1",now,""),
+      ]},
+      speedrun:{ updatedAt:now, categories:{
+        "Any% (RSG)": [
+          mk(1,"NexlyRunner","00:13:24","US","Java","https://example.com/proof/sr/rsg1","1.16.1","Global","S1",now,""),
+          mk(2,"Daksi","00:14:10","BY","Java","https://example.com/proof/sr/rsg2","1.16.1","EU","S1",now,""),
+          mk(3,"PearlDash","00:15:02","GB","Java","https://example.com/proof/sr/rsg3","1.16.1","EU","S1",now,""),
+        ],
+        "Any% (SSG)": [
+          mk(1,"FramePerfect","00:09:58","JP","Java","https://example.com/proof/sr/ssg1","1.16.1","Global","S1",now,""),
+          mk(2,"Octioner","00:10:21","DE","Java","https://example.com/proof/sr/ssg2","1.16.1","EU","S1",now,""),
+          mk(3,"NexlyRunner","00:10:49","US","Java","https://example.com/proof/sr/ssg3","1.16.1","Global","S1",now,""),
+        ],
+      }},
+      pvp:{ updatedAt:now, modes:{
+        "BedWars":[
+          mk(1,"Daksi",2100,"BY","Java","https://example.com/proof/pvp/bw1","1.16.5","EU","S1",now,""),
+          mk(2,"Octioner",1985,"DE","Java","https://example.com/proof/pvp/bw2","1.16.5","EU","S1",now,""),
+          mk(3,"IronKite",1860,"UA","Java","https://example.com/proof/pvp/bw3","1.16.5","EU","S1",now,""),
+        ],
+        "Duels":[
+          mk(1,"Octioner",2222,"DE","Java","https://example.com/proof/pvp/d1","1.20.1","EU","S1",now,""),
+          mk(2,"Daksi",2191,"BY","Java","https://example.com/proof/pvp/d2","1.20.1","EU","S1",now,""),
+          mk(3,"CrystalFox",2002,"FR","Bedrock","https://example.com/proof/pvp/d3","1.20.1","EU","S1",now,""),
+        ],
+      }},
+    }
+  };
+}
+
+let state = loadState() || seedState();
+if(!loadState()) saveState();
+
+/* =========================
+   SHA-256 (WebCrypto + fallback)
+   ========================= */
+async function sha256Hex(input){
+  const txt = String(input ?? "");
+  try{
+    if(window.crypto && crypto.subtle && window.isSecureContext){
+      const enc = new TextEncoder().encode(txt);
+      const buf = await crypto.subtle.digest("SHA-256", enc);
+      return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+    }
+  }catch(e){}
+  return sha256FallbackHex(txt);
+}
+function sha256FallbackHex(ascii){
+  function rrot(v,a){return (v>>>a)|(v<<(32-a));}
+  const max=2**32, K=sha256FallbackHex.K||(sha256FallbackHex.K=[]), H=sha256FallbackHex.H||(sha256FallbackHex.H=[]);
+  let pc=K.length, comp={};
+  for(let c=2; pc<64; c++){
+    if(!comp[c]){
+      for(let i=0;i<313;i+=c) comp[i]=c;
+      H[pc]=(Math.pow(c,.5)*max)|0; K[pc++]=(Math.pow(c,1/3)*max)|0;
+    }
+  }
+  ascii += "\x80";
+  while(ascii.length%64-56) ascii += "\x00";
+  const words=[];
+  for(let i=0;i<ascii.length;i++) words[i>>2] |= ascii.charCodeAt(i) << ((3-i)%4)*8;
+  const bitLen=(ascii.length-1)*8;
+  words.push((bitLen/max)|0); words.push(bitLen|0);
+
+  for(let j=0;j<words.length;){
+    const w=words.slice(j,j+=16);
+    const old=H.slice(0);
+    for(let i=0;i<64;i++){
+      const w15=w[i-15], w2=w[i-2];
+      const a=H[0], e=H[4];
+      const t1=(H[7]+(rrot(e,6)^rrot(e,11)^rrot(e,25))+((e&H[5])^((~e)&H[6]))+K[i]+
+        (w[i]=(i<16)?w[i]:((w[i-16]+(rrot(w15,7)^rrot(w15,18)^(w15>>>3))+w[i-7]+(rrot(w2,17)^rrot(w2,19)^(w2>>>10)))|0)) )|0;
+      const t2=((rrot(a,2)^rrot(a,13)^rrot(a,22))+((a&H[1])^(a&H[2])^(H[1]&H[2])))|0;
+      H.unshift((t1+t2)|0); H[4]=(H[4]+t1)|0; H.pop();
+    }
+    for(let i=0;i<8;i++) H[i]=(H[i]+old[i])|0;
+  }
+  let out="";
+  for(let i=0;i<8;i++) for(let j=3;j>=0;j--){
+    const b=(H[i]>>(j*8))&255; out += (b<16?"0":"")+b.toString(16);
+  }
+  return out;
+}
+
+/* =========================
+   Auth
+   ========================= */
+const currentUser = ()=>state.auth.currentUser;
+const isLoggedIn = ()=>!!currentUser();
+const isAdmin = ()=>currentUser()===ADMIN_USER;
+const adminHashLooksValid = ()=>/^[0-9a-f]{64}$/i.test(String(ADMIN_PASS_HASH||""));
+
+async function login(username, password){
+  username = String(username||"").trim();
+  password = String(password||"");
+  if(!username || !password) return {ok:false, msg:"Заполните логин и пароль."};
+  const h = (await sha256Hex(password)).toLowerCase();
+
+  if(username===ADMIN_USER){
+    if(adminHashLooksValid()){
+      if(h===String(ADMIN_PASS_HASH).toLowerCase()){
+        state.auth.currentUser = ADMIN_USER; saveState();
+        return {ok:true, msg:"Вход админа выполнен."};
+      }
+      return {ok:false, msg:"Неверный пароль админа."};
+    }else{
+      // demo admin mode
+      state.auth.currentUser = ADMIN_USER; saveState();
+      return {ok:true, msg:"Демо-вход админа выполнен (ADMIN_PASS_HASH не настроен как sha256)."};
+    }
+  }
+
+  const u = state.users.find(x=>x.username===username);
+  if(!u) return {ok:false, msg:"Пользователь не найден. Зарегистрируйтесь."};
+  if(u.passHash !== h) return {ok:false, msg:"Неверный пароль."};
+  state.auth.currentUser = username; saveState();
+  return {ok:true, msg:"Вход выполнен."};
+}
+
+async function register(username, password, password2){
+  username = String(username||"").trim();
+  password = String(password||"");
+  password2 = String(password2||"");
+  if(!/^[A-Za-z0-9_]{3,20}$/.test(username)) return {ok:false, msg:"Логин: 3–20 символов, только буквы/цифры/подчёркивание."};
+  if(username===ADMIN_USER) return {ok:false, msg:"Этот логин зарезервирован под админа."};
+  if(password.length<6) return {ok:false, msg:"Пароль минимум 6 символов."};
+  if(password!==password2) return {ok:false, msg:"Пароли не совпадают."};
+  if(state.users.some(x=>x.username===username)) return {ok:false, msg:"Логин уже занят."};
+  const h = (await sha256Hex(password)).toLowerCase();
+  state.users.push({username, passHash:h, createdAt:isoNow()});
+  state.auth.currentUser = username; saveState();
+  return {ok:true, msg:"Регистрация успешна."};
+}
+function logout(){
+  state.auth.currentUser = null; saveState();
+  toast("ok","Готово","Вы вышли из аккаунта.");
+  syncUI();
+  if(location.hash.startsWith("#/apply") || location.hash.startsWith("#/admin")) location.hash = "#/";
+  else route();
+}
+
+/* =========================
+   UI state (filters)
+   ========================= */
+const pageUI = {};
+const getUI = (k, def)=> (pageUI[k] = pageUI[k] ? {...def, ...pageUI[k]} : {...def});
+const setUI = (k, v)=> (pageUI[k] = {...pageUI[k], ...v});
+
+/* =========================
+   Sidebar
+   ========================= */
+const overlay = $("#overlay"), sidebar = $("#sidebar"), hamb = $("#hamb");
+function openSidebar(){ sidebar.classList.add("open"); overlay.classList.add("show"); document.body.classList.add("sidebar-open"); }
+function closeSidebar(){ sidebar.classList.remove("open"); overlay.classList.remove("show"); document.body.classList.remove("sidebar-open"); }
+function toggleSidebar(){ sidebar.classList.contains("open") ? closeSidebar() : openSidebar(); }
+hamb.onclick = toggleSidebar;
+hamb.onkeydown = (e)=>{ if(e.key==="Enter"||e.key===" ") toggleSidebar(); };
+overlay.onclick = closeSidebar;
+sidebar.addEventListener("click", (e)=>{ if(e.target.closest("a")) closeSidebar(); });
+
+/* =========================
+   Modals
+   ========================= */
+const authWrap=$("#authWrap"), authClose=$("#authClose"), profileBtn=$("#profileBtn");
+const tabLogin=$("#tabLogin"), tabReg=$("#tabReg"), loginForm=$("#loginForm"), regForm=$("#regForm");
+const authStatus=$("#authStatus"), logoutBtn=$("#logoutBtn");
+function showAuth(){ authWrap.classList.add("show"); authWrap.setAttribute("aria-hidden","false"); setAuthTab("login"); }
+function hideAuth(){ authWrap.classList.remove("show"); authWrap.setAttribute("aria-hidden","true"); }
+function setAuthTab(which){
+  const isL=which==="login";
+  tabLogin.classList.toggle("active",isL);
+  tabReg.classList.toggle("active",!isL);
+  loginForm.style.display=isL?"":"none";
+  regForm.style.display=!isL?"":"none";
+}
+profileBtn.onclick = ()=>{ syncUI(); showAuth(); };
+authClose.onclick = hideAuth;
+authWrap.addEventListener("click",(e)=>{ if(e.target===authWrap) hideAuth(); });
+tabLogin.onclick = ()=>setAuthTab("login");
+tabReg.onclick = ()=>setAuthTab("reg");
+$("#guestBtn").onclick = ()=>{ hideAuth(); toast("ok","Гость","Можно смотреть рейтинги."); };
+$("#goApply").onclick = ()=>{ hideAuth(); location.hash="#/apply"; };
+logoutBtn.onclick = ()=>{ hideAuth(); logout(); };
+
+loginForm.onsubmit = async (e)=>{
+  e.preventDefault();
+  const fd=new FormData(loginForm);
+  const res=await login(fd.get("username"), fd.get("password"));
+  if(res.ok){ toast("ok","Успех",res.msg); hideAuth(); syncUI(); route(); }
+  else toast("err","Ошибка",res.msg);
+};
+regForm.onsubmit = async (e)=>{
+  e.preventDefault();
+  const fd=new FormData(regForm);
+  const res=await register(fd.get("username"), fd.get("password"), fd.get("password2"));
+  if(res.ok){ toast("ok","Успех",res.msg); hideAuth(); syncUI(); route(); }
+  else toast("err","Ошибка",res.msg);
+};
+
+/* Generic modal */
+const gmWrap=$("#gmWrap"), gmTitle=$("#gmTitle"), gmBody=$("#gmBody"), gmClose=$("#gmClose");
+function showModal(title, html){ gmTitle.textContent=title||"Окно"; gmBody.innerHTML=html||""; gmWrap.classList.add("show"); gmWrap.setAttribute("aria-hidden","false"); }
+function hideModal(){ gmWrap.classList.remove("show"); gmWrap.setAttribute("aria-hidden","true"); gmBody.innerHTML=""; }
+gmClose.onclick = hideModal;
+gmWrap.addEventListener("click",(e)=>{ if(e.target===gmWrap) hideModal(); });
+
+/* =========================
+   Avatar helpers
+   ========================= */
+function initials(n){
+  const s=String(n||"").trim();
+  if(!s) return "??";
+  const parts=s.split(/[\s_]+/).filter(Boolean);
+  const a=(parts[0]||s).slice(0,1);
+  const b=(parts[1]||"").slice(0,1);
+  return (a+b).toUpperCase();
+}
+function avatarHTML(nick, dataUrl, big=false){
+  const cls = big ? "avatar big" : "avatar";
+  const txt = initials(nick);
+  const img = dataUrl ? `<img alt="${esc(nick||"avatar")}" src="${esc(dataUrl)}"/>` : "";
+  const t = dataUrl ? "" : `<div class="avaTxt">${esc(txt)}</div>`;
+  return `<div class="${cls}">${img}${t}</div>`;
+}
+async function fileToDataURL(file){
+  return new Promise((res, rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>res(String(fr.result||""));
+    fr.onerror=()=>rej(new Error("read"));
+    fr.readAsDataURL(file);
+  });
+}
+
+/* =========================
+   Navigation render + UI sync
+   ========================= */
+function renderNav(){
+  const nav=$("#nav"), navSys=$("#navSys");
+  nav.innerHTML=""; navSys.innerHTML="";
+  const cur=location.hash||"#/";
+
+  for(const r of ROUTES){
+    const a=document.createElement("a");
+    a.href=r.path;
+    a.className=(cur===r.path || (r.path!=="#/" && cur.startsWith(r.path))) ? "active" : "";
+    a.innerHTML = `<span class="mono">◆</span><span>${esc(r.label)}</span>`;
+    nav.appendChild(a);
+  }
+
+  // system section
+  if(isAdmin()){
+    const a=document.createElement("a");
+    a.href="#/admin";
+    a.className=cur.startsWith("#/admin")?"active":"";
+    a.innerHTML=`<span class="mono">⚙</span><span>Админ-панель</span>`;
+    navSys.appendChild(a);
+  }
+  const a2=document.createElement("a");
+  a2.href="#/support";
+  a2.className=cur.startsWith("#/support")?"active":"";
+  a2.innerHTML=`<span class="mono">?</span><span>Техподдержка</span>`;
+  navSys.appendChild(a2);
+}
+
+function syncUI(){
+  $("#year").textContent = String(new Date().getFullYear());
+  document.body.setAttribute("data-theme", state.meta.theme || "dark");
+  $("#pillUpd").textContent = `обновлено: ${fmtDate(state.meta.updatedAt)}`;
+  $("#profileLabel").textContent = currentUser() ? currentUser() : "Гость";
+  $("#sbUser").textContent = currentUser() ? currentUser() : "Гость";
+  $("#sbRole").textContent = isAdmin() ? "Админ: редактирование доступно" : (isLoggedIn() ? "Игрок: можно подавать заявки" : "Гость: просмотр");
+  authStatus.textContent = isAdmin() ? "Вы вошли как админ" : (isLoggedIn() ? `Вы вошли: ${currentUser()}` : "Не вошли");
+  logoutBtn.style.display = isLoggedIn() ? "inline-flex" : "none";
+  $("#sbLogout").style.display = isLoggedIn() ? "inline-flex" : "none";
+  renderNav();
+}
+syncUI();
+
+$("#themeBtn").onclick = ()=>{
+  state.meta.theme = (state.meta.theme||"dark")==="dark" ? "light" : "dark";
+  saveState();
+  syncUI();
+  toast("ok","Тема",`Включена тема: ${state.meta.theme}`);
+};
+$("#sbLogout").onclick = logout;
+
+/* =========================
+   Data helpers
+   ========================= */
+function getTopN(list, n=3){
+  return (list||[]).slice().sort((a,b)=>(a.place||999)-(b.place||999)).slice(0,n);
+}
+function getTop1(list){ return getTopN(list,1)[0] || null; }
+function seasonsAll(){
+  const s=new Set();
+  for(const t of state.tournaments) if(t.season) s.add(t.season);
+  for(const e of state.leaderboards.tournaments.entries) if(e.season) s.add(e.season);
+  for(const arr of Object.values(state.leaderboards.speedrun.categories)) for(const e of arr) if(e.season) s.add(e.season);
+  for(const arr of Object.values(state.leaderboards.pvp.modes)) for(const e of arr) if(e.season) s.add(e.season);
+  return Array.from(s).sort().reverse();
+}
+function versionsAll(){
+  const s=new Set();
+  for(const t of state.tournaments) if(t.version) s.add(t.version);
+  for(const e of state.leaderboards.tournaments.entries) if(e.version) s.add(e.version);
+  for(const arr of Object.values(state.leaderboards.speedrun.categories)) for(const e of arr) if(e.version) s.add(e.version);
+  for(const arr of Object.values(state.leaderboards.pvp.modes)) for(const e of arr) if(e.version) s.add(e.version);
+  return Array.from(s).sort();
+}
+function regionsAll(){
+  const s=new Set();
+  for(const t of state.tournaments) if(t.region) s.add(t.region);
+  for(const e of state.leaderboards.tournaments.entries) if(e.region) s.add(e.region);
+  for(const arr of Object.values(state.leaderboards.speedrun.categories)) for(const e of arr) if(e.region) s.add(e.region);
+  for(const arr of Object.values(state.leaderboards.pvp.modes)) for(const e of arr) if(e.region) s.add(e.region);
+  return Array.from(s).sort();
+}
+function optList(arr, sel, withAll=true){
+  const all = withAll ? `<option value="all">Все</option>` : "";
+  return all + arr.map(x=>`<option value="${esc(x)}" ${String(x)===String(sel)?"selected":""}>${esc(x)}</option>`).join("");
+}
+function filterEntries(entries, q, f){
+  let list=(entries||[]).slice();
+  const query=String(q||"").trim().toLowerCase();
+  if(query) list=list.filter(e=>String(e.nick||"").toLowerCase().includes(query));
+  if(f?.season && f.season!=="all") list=list.filter(e=>String(e.season||"")===String(f.season));
+  if(f?.version && f.version!=="all") list=list.filter(e=>String(e.version||"")===String(f.version));
+  if(f?.region && f.region!=="all") list=list.filter(e=>String(e.region||"")===String(f.region));
+  return list;
+}
+function pageHead(title, desc, right=""){
+  return `
+    <div class="head">
+      <div>
+        <h2>${esc(title)}</h2>
+        <div class="desc">${desc||""}</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">${right||""}</div>
+    </div>
+  `;
+}
+function champCard(title, entry, extraChipsHTML, rightTagHTML){
+  const nick = entry?.nick || entry?.winnerNick || "—";
+  const ava = entry?.avatar || entry?.winnerAvatar || "";
+  return `
+    <div class="champ">
+      <div class="chTop">
+        <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
+          ${avatarHTML(nick, ava, true)}
+          <div>
+            <div class="chTitle">${esc(title)}</div>
+            <div class="chNick">${esc(nick)}</div>
+            <div class="chMeta">${extraChipsHTML||""}</div>
+          </div>
+        </div>
+        ${rightTagHTML||""}
+      </div>
+    </div>
+  `;
+}
+function podiumHTML(top3, modeLabel){
+  if(!top3.length) return `<div class="hint">Нет данных.</div>`;
+  return `
+    <div class="podium">
+      ${top3.map((e,idx)=>`
+        <div class="pCard">
+          <div class="pRank">#${esc(e.place ?? (idx+1))}</div>
+          <div style="display:flex;gap:12px;align-items:center">
+            ${avatarHTML(e.nick, e.avatar, false)}
+            <div>
+              <div class="pNick">${esc(e.nick)}</div>
+              <div class="pVal">${esc(modeLabel)}: <span class="mono">${esc(e.points)}</span><br/>${esc(e.country)} • ${esc(e.platform)}</div>
+            </div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+function tableHTML(entries, updatedAtFallback){
+  const list=(entries||[]).slice().sort((a,b)=>(a.place||999)-(b.place||999));
+  const rows=list.map(e=>`
+    <tr>
+      <td class="rank">${esc(e.place)}</td>
+      <td>
+        <div class="av">
+          ${avatarHTML(e.nick, e.avatar, false)}
+          <div>
+            <div style="font-weight:900">${esc(e.nick)}</div>
+            <div class="hint">${esc(e.region||"—")} • ${esc(e.version||"—")} • ${esc(e.season||"—")}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="mono">${esc(e.points)}</span></td>
+      <td>${esc(e.country)}</td>
+      <td>${esc(e.platform)}</td>
+      <td>${e.proofUrl ? `<a class="link" href="${esc(e.proofUrl)}" target="_blank" rel="noopener">пруф</a>` : "—"}</td>
+      <td>${fmtDate(e.updatedAt || updatedAtFallback)}</td>
+    </tr>
+  `).join("");
+  return `
+    <div class="table"><table>
+      <thead><tr>
+        <th style="width:90px">Место</th>
+        <th>Игрок</th>
+        <th style="width:160px">Очки / Время</th>
+        <th style="width:110px">Страна</th>
+        <th style="width:120px">Платформа</th>
+        <th style="width:110px">Пруф</th>
+        <th style="width:140px">Обновлено</th>
+      </tr></thead>
+      <tbody>${rows || `<tr><td colspan="7" style="color:var(--mut);padding:16px">Нет данных</td></tr>`}</tbody>
+    </table></div>
+  `;
+}
+
+/* =========================
+   Pages
+   ========================= */
+function renderHome(){
+  const topT = getTop1(state.leaderboards.tournaments.entries);
+  // speedrun: pick first category with entries
+  const cats = Object.keys(state.leaderboards.speedrun.categories||{});
+  const srCat = cats.find(k=>(state.leaderboards.speedrun.categories[k]||[]).length) || (cats[0]||"—");
+  const topS = getTop1(state.leaderboards.speedrun.categories[srCat]||[]);
+  // pvp: pick first mode with entries
+  const modes = Object.keys(state.leaderboards.pvp.modes||{});
+  const pMode = modes.find(k=>(state.leaderboards.pvp.modes[k]||[]).length) || (modes[0]||"—");
+  const topP = getTop1(state.leaderboards.pvp.modes[pMode]||[]);
+
+  $("#view").innerHTML = `
+    ${pageHead(
+      "Главная",
+      "Топ-1 в каждом рейтинге + быстрые кнопки. Фото можно ставить у игроков (админ-панель).",
+      `<a class="btn primary" href="#/tournaments">Смотреть рейтинги</a><a class="btn" href="#/calendar">Календарь</a>`
+    )}
+
+    <div class="grid">
+      <div class="card glass" style="grid-column:span 12">
+        ${champCard("Чемпион сезона • Турниры", topT, `
+          <span class="chip">Сезон: ${esc(topT?.season||"—")}</span>
+          <span class="chip">Регион: ${esc(topT?.region||"—")}</span>
+          <span class="chip">Версия: ${esc(topT?.version||"—")}</span>
+        `, `<span class="tag ok">#1 • ${esc(topT?.points ?? "—")}</span>`)}
+      </div>
+
+      <div class="card glass" style="grid-column:span 6">
+        ${champCard("Чемпион • Спидран", topS, `
+          <span class="chip">Категория: ${esc(srCat)}</span>
+          <span class="chip">Результат: <span class="mono">${esc(topS?.points||"—")}</span></span>
+          <span class="chip">Версия: ${esc(topS?.version||"—")}</span>
+        `, `<span class="tag warn">#1</span>`)}
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn primary" href="#/speedrun">Открыть спидран</a>
+          <a class="btn" href="#/apply">Подать заявку</a>
+        </div>
+      </div>
+
+      <div class="card glass" style="grid-column:span 6">
+        ${champCard("Чемпион • PvP", topP, `
+          <span class="chip">Режим: ${esc(pMode)}</span>
+          <span class="chip">Очки: <span class="mono">${esc(topP?.points||"—")}</span></span>
+          <span class="chip">Версия: ${esc(topP?.version||"—")}</span>
+        `, `<span class="tag ok">#1</span>`)}
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn primary" href="#/pvp">Открыть PvP</a>
+          <a class="btn" href="#/tournaments">Открыть турниры</a>
+        </div>
+      </div>
+
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cardH">
+          <div class="cTitle"><span class="mono">✓</span><span>Как пользоваться</span></div>
+          <span class="tag">очень просто</span>
+        </div>
+        <div class="hint">
+          1) Выбери рейтинг (Турниры/Спидран/PvP).<br/>
+          2) Используй поиск и фильтры (сезон/версия/регион).<br/>
+          3) Смотри топ-3 (подиум) и полный список.<br/>
+          4) Заявки — только после входа.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTournaments(){
+  const seasons=seasonsAll(), versions=versionsAll(), regions=regionsAll();
+  const ui=getUI("tournaments",{q:"",season:"all",version:"all",region:"all"});
+  const entries=filterEntries(state.leaderboards.tournaments.entries, ui.q, ui);
+  const updatedAt=state.leaderboards.tournaments.updatedAt;
+  const top3=getTopN(entries,3);
+
+  const list=state.tournaments.slice().sort((a,b)=>new Date(a.dateStart)-new Date(b.dateStart)).map(t=>{
+    const typeName=t.type==="speedrun"?"Спидран":(t.type==="pvp"?"PvP":"Турнир");
+    const st = t.status==="finished" ? `<span class="tag ok">Завершён</span>` : `<span class="tag warn">Скоро</span>`;
+    return `
+      <div class="card glass" style="padding:12px;border-radius:16px">
+        <div class="cardH" style="margin-bottom:8px">
+          <div class="cTitle"><span class="mono">🏆</span><span>${esc(t.name)}</span><small>• ${esc(typeName)}</small></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            ${st}<span class="tag">Сезон: ${esc(t.season||"—")}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          ${avatarHTML(t.winnerNick, t.winnerAvatar, false)}
+          <div class="hint" style="flex:1">
+            <div>
+              <span class="chip">Дата: ${esc(fmtDateTime(t.dateStart))}</span>
+              <span class="chip">Версия: ${esc(t.version||"—")}</span>
+              <span class="chip">Регион: ${esc(t.region||"—")}</span>
+              <span class="chip">Место: ${esc(t.location||"—")}</span>
+            </div>
+            <div style="margin-top:8px">
+              Победитель: <span class="mono"><strong>${esc(t.winnerNick||"—")}</strong></span>
+              ${t.proofUrl?` • <a class="link" href="${esc(t.proofUrl)}" target="_blank" rel="noopener">пруф</a>`:""}
+              • <button class="btn" data-td="${esc(t.id)}" style="padding:8px 10px;border-radius:12px;box-shadow:none">Подробнее</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  $("#view").innerHTML = `
+    ${pageHead("Рейтинг: Турниры","Сверху топ-3 (подиум), ниже полный список. Фото у игроков — рядом с ником.",
+      `<span class="tag">Обновлено: ${fmtDate(updatedAt)}</span>`)}
+    <div class="grid">
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cardH"><div class="cTitle"><span class="mono">🏅</span><span>Топ-3</span></div><span class="tag">подиум</span></div>
+        ${podiumHTML(top3, "Очки")}
+      </div>
+
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cardH">
+          <div class="cTitle"><span class="mono">#</span><span>Полный список</span></div>
+          <span class="tag">поиск + фильтры</span>
+        </div>
+        <div class="toolbar" style="margin-bottom:12px">
+          <div class="field" style="min-width:240px">
+            <label>Поиск по нику</label>
+            <input class="input" id="t_q" value="${esc(ui.q)}" placeholder="например: Daksi"/>
+          </div>
+          <div class="field"><label>Сезон</label><select id="t_s">${optList(seasons, ui.season, true)}</select></div>
+          <div class="field"><label>Версия</label><select id="t_v">${optList(versions, ui.version, true)}</select></div>
+          <div class="field"><label>Регион</label><select id="t_r">${optList(regions, ui.region, true)}</select></div>
+          <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="t_clear">Сбросить</button>
+          </div>
+        </div>
+        ${tableHTML(entries, updatedAt)}
+      </div>
+
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cardH"><div class="cTitle"><span class="mono">📅</span><span>Турниры и победители</span></div><span class="tag">с фото</span></div>
+        <div style="display:grid;gap:12px">${list || `<div class="hint">Нет турниров.</div>`}</div>
+      </div>
+    </div>
+  `;
+
+  const apply=()=>{
+    setUI("tournaments",{q:$("#t_q").value, season:$("#t_s").value, version:$("#t_v").value, region:$("#t_r").value});
+    renderTournaments();
+  };
+  $("#t_q").addEventListener("input", debounce(apply));
+  $("#t_s").onchange = apply; $("#t_v").onchange = apply; $("#t_r").onchange = apply;
+  $("#t_clear").onclick = ()=>{ setUI("tournaments",{q:"",season:"all",version:"all",region:"all"}); renderTournaments(); };
+  $$("[data-td]").forEach(b=>b.onclick=()=>openTournamentDetail(b.getAttribute("data-td")));
+}
+
+function renderSpeedrun(){
+  const seasons=seasonsAll(), versions=versionsAll(), regions=regionsAll();
+  const cats=Object.keys(state.leaderboards.speedrun.categories||{});
+  const ui=getUI("speedrun",{q:"",season:"all",version:"all",region:"all",cat:cats[0]||""});
+  if(!cats.includes(ui.cat)) ui.cat=cats[0]||"";
+  const raw=state.leaderboards.speedrun.categories[ui.cat]||[];
+  const entries=filterEntries(raw, ui.q, ui);
+  const updatedAt=state.leaderboards.speedrun.updatedAt;
+  const top3=getTopN(entries,3);
+  const top1=getTop1(entries);
+
+  $("#view").innerHTML = `
+    ${pageHead("Рейтинг: Спидран","Сверху чемпион и топ-3. Очки здесь — время (например 00:13:24).",
+      `<span class="tag">Обновлено: ${fmtDate(updatedAt)}</span>`)}
+    <div class="grid">
+      <div class="card glass" style="grid-column:span 12">
+        ${champCard("Чемпион • Спидран", top1, `
+          <span class="chip">Категория: ${esc(ui.cat||"—")}</span>
+          <span class="chip">Результат: <span class="mono">${esc(top1?.points||"—")}</span></span>
+          <span class="chip">Версия: ${esc(top1?.version||"—")}</span>
+        `, `<span class="tag warn">#1</span>`)}
+      </div>
+
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cardH"><div class="cTitle"><span class="mono">🏅</span><span>Топ-3</span></div><span class="tag">подиум</span></div>
+        ${podiumHTML(top3, "Время")}
+      </div>
+
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cardH"><div class="cTitle"><span class="mono">⏱</span><span>Фильтры</span></div><span class="tag">поиск</span></div>
+        <div class="toolbar">
+          <div class="field" style="min-width:240px">
+            <label>Поиск</label>
+            <input class="input" id="sr_q" value="${esc(ui.q)}" placeholder="например: Runner"/>
+          </div>
+          <div class="field" style="min-width:240px">
+            <label>Категория</label>
+            <select id="sr_cat">${cats.map(c=>`<option value="${esc(c)}" ${c===ui.cat?"selected":""}>${esc(c)}</option>`).join("")}</select>
+          </div>
+          <div class="field"><label>Сезон</label><select id="sr_s">${optList(seasons, ui.season, true)}</select></div>
+          <div class="field"><label>Версия</label><select id="sr_v">${optList(versions, ui.version, true)}</select></div>
+          <div class="field"><label>Регион</label><select id="sr_r">${optList(regions, ui.region, true)}</select></div>
+          <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="sr_clear">Сбросить</button>
+          </div>
+        </div>
+        <div style="height:12px"></div>
+        ${tableHTML(entries, updatedAt)}
+      </div>
+    </div>
+  `;
+
+  const apply=()=>{
+    setUI("speedrun",{q:$("#sr_q").value, cat:$("#sr_cat").value, season:$("#sr_s").value, version:$("#sr_v").value, region:$("#sr_r").value});
+    renderSpeedrun();
+  };
+  $("#sr_q").addEventListener("input", debounce(apply));
+  $("#sr_cat").onchange=apply; $("#sr_s").onchange=apply; $("#sr_v").onchange=apply; $("#sr_r").onchange=apply;
+  $("#sr_clear").onclick=()=>{ setUI("speedrun",{q:"",season:"all",version:"all",region:"all",cat:cats[0]||""}); renderSpeedrun(); };
+}
+
+function renderPvp(){
+  const seasons=seasonsAll(), versions=versionsAll(), regions=regionsAll();
+  const modes=Object.keys(state.leaderboards.pvp.modes||{});
+  const ui=getUI("pvp",{q:"",season:"all",version:"all",region:"all",mode:modes[0]||""});
+  if(!modes.includes(ui.mode)) ui.mode=modes[0]||"";
+  const raw=state.leaderboards.pvp.modes[ui.mode]||[];
+  const entries=filterEntries(raw, ui.q, ui);
+  const updatedAt=state.leaderboards.pvp.updatedAt;
+  const top3=getTopN(entries,3);
+  const top1=getTop1(entries);
+
+  $("#view").innerHTML = `
+    ${pageHead("Рейтинг: PvP","Сверху чемпион и топ-3 по выбранному режиму.",
+      `<span class="tag">Обновлено: ${fmtDate(updatedAt)}</span>`)}
+    <div class="grid">
+      <div class="card glass" style="grid-column:span 12">
+        ${champCard("Чемпион • PvP", top1, `
+          <span class="chip">Режим: ${esc(ui.mode||"—")}</span>
+          <span class="chip">Очки: <span class="mono">${esc(top1?.points||"—")}</span></span>
+          <span class="chip">Версия: ${esc(top1?.version||"—")}</span>
+        `, `<span class="tag ok">#1</span>`)}
+      </div>
+
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cardH"><div class="cTitle"><span class="mono">🏅</span><span>Топ-3</span></div><span class="tag">подиум</span></div>
+        ${podiumHTML(top3, "Очки")}
+      </div>
+
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cardH"><div class="cTitle"><span class="mono">⚔</span><span>Фильтры</span></div><span class="tag">поиск</span></div>
+        <div class="toolbar">
+          <div class="field" style="min-width:240px"><label>Поиск</label><input class="input" id="p_q" value="${esc(ui.q)}" placeholder="например: Octioner"/></div>
+          <div class="field" style="min-width:220px">
+            <label>Режим</label>
+            <select id="p_m">${modes.map(m=>`<option value="${esc(m)}" ${m===ui.mode?"selected":""}>${esc(m)}</option>`).join("")}</select>
+          </div>
+          <div class="field"><label>Сезон</label><select id="p_s">${optList(seasons, ui.season, true)}</select></div>
+          <div class="field"><label>Версия</label><select id="p_v">${optList(versions, ui.version, true)}</select></div>
+          <div class="field"><label>Регион</label><select id="p_r">${optList(regions, ui.region, true)}</select></div>
+          <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" id="p_clear">Сбросить</button>
+          </div>
+        </div>
+        <div style="height:12px"></div>
+        ${tableHTML(entries, updatedAt)}
+      </div>
+    </div>
+  `;
+
+  const apply=()=>{
+    setUI("pvp",{q:$("#p_q").value, mode:$("#p_m").value, season:$("#p_s").value, version:$("#p_v").value, region:$("#p_r").value});
+    renderPvp();
+  };
+  $("#p_q").addEventListener("input", debounce(apply));
+  $("#p_m").onchange=apply; $("#p_s").onchange=apply; $("#p_v").onchange=apply; $("#p_r").onchange=apply;
+  $("#p_clear").onclick=()=>{ setUI("pvp",{q:"",season:"all",version:"all",region:"all",mode:modes[0]||""}); renderPvp(); };
+}
+
+function openTournamentDetail(tid){
+  const t=state.tournaments.find(x=>x.id===tid);
+  if(!t) return toast("err","Ошибка","Событие не найдено.");
+  const typeName=t.type==="speedrun"?"Спидран":(t.type==="pvp"?"PvP":"Турнир");
+  showModal("Детали турнира", `
+    <div class="grid">
+      <div class="field" style="grid-column:span 12"><label>Название</label><div class="input" style="background:transparent">${esc(t.name)}</div></div>
+      <div class="field" style="grid-column:span 6"><label>Тип</label><div class="input" style="background:transparent">${esc(typeName)}</div></div>
+      <div class="field" style="grid-column:span 6"><label>Статус</label><div class="input" style="background:transparent">${esc(t.status)}</div></div>
+      <div class="field" style="grid-column:span 6"><label>Старт</label><div class="input" style="background:transparent">${esc(fmtDateTime(t.dateStart))}</div></div>
+      <div class="field" style="grid-column:span 6"><label>Финиш</label><div class="input" style="background:transparent">${esc(fmtDateTime(t.dateEnd))}</div></div>
+      <div class="field" style="grid-column:span 6"><label>Версия</label><div class="input" style="background:transparent">${esc(t.version||"—")}</div></div>
+      <div class="field" style="grid-column:span 6"><label>Регион</label><div class="input" style="background:transparent">${esc(t.region||"—")}</div></div>
+
+      <div class="field" style="grid-column:span 12">
+        <label>Победитель</label>
+        <div class="preview">
+          ${avatarHTML(t.winnerNick, t.winnerAvatar, false)}
+          <div>
+            <div style="font-weight:900">${esc(t.winnerNick||"—")}</div>
+            ${t.proofUrl?`<div style="margin-top:6px"><a class="link" href="${esc(t.proofUrl)}" target="_blank" rel="noopener">Открыть пруф</a></div>`:""}
+          </div>
+        </div>
+      </div>
+
+      <div style="grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+        <a class="btn primary" href="#/apply" onclick="document.getElementById('gmClose').click()">Подать заявку</a>
+      </div>
+    </div>
+  `);
+}
+
+function renderCalendar(){
+  const now=new Date();
+  const ui=getUI("calendar",{y:now.getFullYear(), m:now.getMonth()});
+  let y=parseInt(ui.y,10); let m=parseInt(ui.m,10);
+  if(!Number.isFinite(y)) y=now.getFullYear();
+  if(!Number.isFinite(m)) m=now.getMonth();
+  m=Math.max(0,Math.min(11,m));
+
+  const first=new Date(y,m,1);
+  const startDow=(first.getDay()+6)%7;
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const totalCells=Math.ceil((startDow+daysInMonth)/7)*7;
+
+  const monthNames=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+  const dow=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+
+  const ts=state.tournaments.slice().sort((a,b)=>new Date(a.dateStart)-new Date(b.dateStart));
+  const byDay=new Map();
+  for(const t of ts){
+    const d=new Date(t.dateStart);
+    if(d.getFullYear()===y && d.getMonth()===m){
+      const day=d.getDate();
+      if(!byDay.has(day)) byDay.set(day,[]);
+      byDay.get(day).push(t);
+    }
+  }
+
+  let cells="";
+  for(let i=0;i<totalCells;i++){
+    const dayNum=i-startDow+1;
+    const inMonth=dayNum>=1 && dayNum<=daysInMonth;
+    const ev=inMonth ? (byDay.get(dayNum)||[]) : [];
+    const has=ev.length>0;
+    const evHtml=ev.slice(0,3).map(t=>`<div class="evt" data-td="${esc(t.id)}" title="${esc(t.name)}">${esc(t.name)}</div>`).join("");
+    cells += `
+      <div class="cell" style="${inMonth?"":"opacity:.45"}">
+        <div class="day"><span>${inMonth?dayNum:""}</span>${has?`<span class="badge"></span>`:`<span style="width:7px;height:7px"></span>`}</div>
+        <div class="evts">${evHtml}</div>
+      </div>`;
+  }
+
+  const upcoming = ts
+    .filter(t=>new Date(t.dateStart) >= new Date(Date.now()-86400000))
+    .slice(0,10)
+    .map(t=>`
+      <tr>
+        <td>${fmtDateTime(t.dateStart)}</td>
+        <td><strong>${esc(t.name)}</strong><div class="hint">Тип: ${esc(t.type)} • Сезон: ${esc(t.season)} • Версия: ${esc(t.version)} • Регион: ${esc(t.region)}</div></td>
+        <td>${esc(t.location||"—")}</td>
+        <td><span class="chip">${esc(t.status)}</span></td>
+        <td><button class="btn" data-td="${esc(t.id)}" style="padding:8px 10px;border-radius:12px;box-shadow:none">Подробнее</button></td>
+      </tr>
+    `).join("");
+
+  $("#view").innerHTML=`
+    ${pageHead("Календарь турниров","Нажимай на событие, чтобы открыть детали. Заявка — только после входа.",
+      `<a class="btn primary" href="#/apply">Подать заявку</a>`)}
+    <div class="grid">
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cal">
+          <div class="calH">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <button class="btn" id="calPrev">←</button>
+              <div style="font-weight:900;letter-spacing:.2px">${monthNames[m]} ${y}</div>
+              <button class="btn" id="calNext">→</button>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <span class="tag">Событий: ${ts.length}</span>
+              <button class="btn" id="calToday">Сегодня</button>
+            </div>
+          </div>
+          <div class="calGrid">
+            ${dow.map(x=>`<div class="dow">${x}</div>`).join("")}
+            ${cells}
+          </div>
+        </div>
+      </div>
+
+      <div class="card glass" style="grid-column:span 12">
+        <div class="cardH"><div class="cTitle"><span class="mono">📃</span><span>Ближайшие события</span></div><span class="tag">список</span></div>
+        <div class="table">
+          <table style="min-width:920px">
+            <thead><tr>
+              <th style="width:180px">Дата/время</th>
+              <th>Событие</th>
+              <th style="width:140px">Место</th>
+              <th style="width:120px">Статус</th>
+              <th style="width:160px">Действия</th>
+            </tr></thead>
+            <tbody>${upcoming || `<tr><td colspan="5" style="color:var(--mut);padding:16px">Нет ближайших событий.</td></tr>`}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const setMonth=(yy,mm)=>{ setUI("calendar",{y:yy,m:mm}); renderCalendar(); };
+  $("#calPrev").onclick=()=>{ const d=new Date(y,m-1,1); setMonth(d.getFullYear(), d.getMonth()); };
+  $("#calNext").onclick=()=>{ const d=new Date(y,m+1,1); setMonth(d.getFullYear(), d.getMonth()); };
+  $("#calToday").onclick=()=>{ const d=new Date(); setMonth(d.getFullYear(), d.getMonth()); };
+  $$("[data-td]").forEach(b=>b.onclick=()=>openTournamentDetail(b.getAttribute("data-td")));
+}
+
+function renderApply(){
+  const can=isLoggedIn();
+  const u=currentUser();
+  const my = can ? state.applications.filter(a=>a.user===u).slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)) : [];
+  const list = my.map(a=>{
+    const st=a.status==="accepted"?"ok":(a.status==="rejected"?"bad":"warn");
+    const txt=a.status==="accepted"?"Принято":(a.status==="rejected"?"Отклонено":"Ожидает");
+    return `
+      <div class="card glass" style="padding:12px;border-radius:16px">
+        <div class="cardH" style="margin-bottom:8px">
+          <div class="cTitle"><span class="mono">✉</span><span>${esc(a.nick)}</span><small>• ${esc(a.category)}</small></div>
+          <span class="tag ${st}">${txt}</span>
+        </div>
+        <div class="hint">
+          Discord: <span class="mono">${esc(a.discord)}</span><br/>
+          Комментарий: ${esc(a.comment||"—")}<br/>
+          Создано: ${esc(fmtDateTime(a.createdAt))}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  $("#view").innerHTML=`
+    ${pageHead("Подать заявку","Заявка на участие. После отправки появится в “Мои заявки”.",
+      can?`<span class="tag ok">Вход выполнен</span>`:`<span class="tag warn">Нужен вход</span>`)}
+    <div class="grid">
+      <div class="card glass" style="grid-column:span 7">
+        <div class="cardH"><div class="cTitle"><span class="mono">＋</span><span>Новая заявка</span></div><span class="tag">форма</span></div>
+
+        ${can ? `
+          <form id="applyForm">
+            <div class="grid">
+              <div class="field" style="grid-column:span 6"><label>Ник</label><input class="input" name="nick" required placeholder="Daksi"/></div>
+              <div class="field" style="grid-column:span 6"><label>Discord</label><input class="input" name="discord" required placeholder="@username"/></div>
+              <div class="field" style="grid-column:span 12">
+                <label>Категория</label>
+                <select name="category" required>
+                  <option value="Турниры">Турниры</option>
+                  <option value="Спидран">Спидран</option>
+                  <option value="PvP">PvP</option>
+                  <option value="PvP: BedWars">PvP: BedWars</option>
+                  <option value="PvP: Duels">PvP: Duels</option>
+                </select>
+              </div>
+              <div class="field" style="grid-column:span 12"><label>Комментарий</label><textarea name="comment" placeholder="Например: EU, вечер, версия 1.16.5"></textarea></div>
+              <div style="grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn primary" type="submit">Отправить</button>
+                <a class="btn" href="#/calendar">Посмотреть календарь</a>
+              </div>
+            </div>
+          </form>
+        ` : `
+          <div class="panel">
+            <div style="font-size:22px;font-weight:900">Нужен вход</div>
+            <div class="hint" style="margin-top:8px">Гость может смотреть рейтинги, но подача заявки доступна только после входа.</div>
+            <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary" id="openAuth">Войти / Регистрация</button>
+              <a class="btn" href="#/calendar">Календарь</a>
+            </div>
+          </div>
+        `}
+      </div>
+
+      <div class="card glass" style="grid-column:span 5">
+        <div class="cardH"><div class="cTitle"><span class="mono">🗂</span><span>Мои заявки</span></div><span class="tag">${can ? `${my.length} шт.` : "—"}</span></div>
+        ${can ? `<div style="display:grid;gap:12px">${list || `<div class="hint">Пока нет заявок.</div>`}</div>` : `<div class="hint">Войдите, чтобы видеть заявки.</div>`}
+      </div>
+    </div>
+  `;
+
+  const btn=$("#openAuth");
+  if(btn) btn.onclick=showAuth;
+
+  const form=$("#applyForm");
+  if(form){
+    form.onsubmit=(e)=>{
+      e.preventDefault();
+      const fd=new FormData(form);
+      const nick=String(fd.get("nick")||"").trim();
+      const discord=String(fd.get("discord")||"").trim();
+      const category=String(fd.get("category")||"").trim();
+      const comment=String(fd.get("comment")||"").trim();
+      if(nick.length<3) return toast("err","Ошибка","Ник слишком короткий.");
+      if(discord.length<2) return toast("err","Ошибка","Укажите Discord.");
+      state.applications.push({id:uid("app"), user:currentUser(), createdAt:isoNow(), status:"pending", nick, discord, category, comment});
+      saveState();
+      toast("ok","Отправлено","Заявка создана.");
+      renderApply();
+    };
+  }
+}
+
+function renderSupport(){
+  const faq=[
+    ["Почему фото не видно у друзей?","Потому что это демо: всё хранится локально в вашем браузере (localStorage)."],
+    ["Как перенести данные?","Админка → Инструменты → Экспорт/Импорт JSON."],
+    ["Почему админ входит без строгого пароля?","Потому что ADMIN_PASS_HASH сейчас не sha256. Поставьте реальный sha256-hex в коде."],
+  ];
+  $("#view").innerHTML=`
+    ${pageHead("Техподдержка","Форма обращения (демо) + FAQ.")}
+    <div class="grid">
+      <div class="card glass" style="grid-column:span 7">
+        <div class="cardH"><div class="cTitle"><span class="mono">?</span><span>Форма обращения</span></div><span class="tag">демо</span></div>
+        <form id="supportForm">
+          <div class="grid">
+            <div class="field" style="grid-column:span 6"><label>Ваш ник</label><input class="input" name="nick" required placeholder="Steve"/></div>
+            <div class="field" style="grid-column:span 6"><label>Контакт (Discord)</label><input class="input" name="contact" required placeholder="@username"/></div>
+            <div class="field" style="grid-column:span 12"><label>Тема</label>
+              <select name="topic" required>
+                <option value="Ошибки/баги">Ошибки/баги</option>
+                <option value="Турниры">Турниры</option>
+                <option value="Рейтинги">Рейтинги</option>
+                <option value="Другое">Другое</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column:span 12"><label>Сообщение</label><textarea name="message" required placeholder="Опишите проблему шагами..."></textarea></div>
+            <div style="grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary" type="submit">Отправить</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card glass" style="grid-column:span 5">
+        <div class="cardH"><div class="cTitle"><span class="mono">FAQ</span><span>Частые вопросы</span></div><span class="tag">справка</span></div>
+        <div style="display:grid;gap:12px">
+          ${faq.map((x,i)=>`
+            <div class="card glass" style="padding:12px;border-radius:16px">
+              <div class="cardH" style="margin-bottom:8px">
+                <div class="cTitle"><span class="mono">•</span><span>${esc(x[0])}</span></div>
+                <button class="btn" data-faq="${i}" style="padding:8px 10px;border-radius:12px;box-shadow:none">Показать</button>
+              </div>
+              <div class="hint" id="faq_${i}" style="display:none">${esc(x[1])}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+  $("#supportForm").onsubmit=(e)=>{
+    e.preventDefault();
+    const fd=new FormData(e.target);
+    const msg=String(fd.get("message")||"").trim();
+    if(msg.length<10) return toast("err","Ошибка","Сообщение минимум 10 символов.");
+    toast("ok","Принято",`Тема: ${fd.get("topic")}. Обращение принято (демо).`);
+    e.target.reset();
+  };
+  $$("[data-faq]").forEach(b=>{
+    b.onclick=()=>{
+      const i=b.getAttribute("data-faq");
+      const el=$("#faq_"+i);
+      const open=el.style.display!=="none";
+      el.style.display=open?"none":"block";
+      b.textContent=open?"Показать":"Скрыть";
+    };
+  });
+}
+
+/* =========================
+   Admin panel
+   ========================= */
+function touchUpdated(){
+  state.meta.updatedAt = isoNow();
+  saveState();
+  syncUI();
+}
+function downloadText(filename, text){
+  const blob=new Blob([text],{type:"application/json;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},0);
+}
+
+function renderAdmin(){
+  if(!isAdmin()){
+    $("#view").innerHTML=`
+      ${pageHead("Админ-панель","Доступна только после входа как админ.")}
+      <div class="card glass">
+        <div style="font-size:22px;font-weight:900">Нет доступа</div>
+        <div class="hint" style="margin-top:8px">Войдите под <span class="mono">${esc(ADMIN_USER)}</span>.</div>
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn primary" id="adminLogin">Войти</button>
+          <a class="btn" href="#/">На главную</a>
+        </div>
+      </div>
+    `;
+    $("#adminLogin").onclick=showAuth;
+    return;
+  }
+
+  const tabs=[["tourneys","Турниры"],["boards","Рейтинги (с фото)"],["apps","Заявки"],["tools","Инструменты"]];
+  const ui=getUI("admin",{tab:"tourneys"});
+  const tabBtns=tabs.map(t=>`<button class="tab ${ui.tab===t[0]?"active":""}" data-at="${t[0]}">${esc(t[1])}</button>`).join("");
+
+  $("#view").innerHTML=`
+    ${pageHead("Админ-панель","Добавляйте турниры, редактируйте рейтинги, ставьте фото игрокам, модерируйте заявки.",
+      `<span class="tag ok">Админ</span>`)}
+    <div class="card glass">
+      <div class="tabs">${tabBtns}</div>
+      <div style="height:12px"></div>
+      <div id="adminBody">${adminTab(ui.tab)}</div>
+    </div>
+  `;
+  $$("[data-at]").forEach(b=>b.onclick=()=>{ setUI("admin",{tab:b.getAttribute("data-at")}); renderAdmin(); });
+  bindAdminTab(ui.tab);
+}
+
+function adminTab(tab){
+  if(tab==="tourneys"){
+    const ts=state.tournaments.slice().sort((a,b)=>new Date(a.dateStart)-new Date(b.dateStart));
+    const rows=ts.map(t=>`
+      <tr>
+        <td><strong>${esc(t.name)}</strong><div class="hint">id: <span class="mono">${esc(t.id)}</span></div></td>
+        <td>${esc(t.type)}</td>
+        <td>${esc(t.season)}</td>
+        <td>${esc(t.region)}</td>
+        <td>${esc(t.version)}</td>
+        <td>${esc(fmtDateTime(t.dateStart))}</td>
+        <td>${esc(t.status)}</td>
+        <td><button class="btn" data-edit-t="${esc(t.id)}" style="padding:8px 10px;border-radius:12px;box-shadow:none">Изм.</button></td>
+      </tr>
+    `).join("");
+    return `
+      <div class="toolbar" style="margin-bottom:12px">
+        <div class="field" style="min-width:320px">
+          <label>Турниры</label>
+          <div class="hint">Редактирование даты, победителя, пруф-URL и фото победителя.</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn primary" id="addT">Новый турнир</button>
+          <button class="btn" id="touchU">Обновлено: сейчас</button>
+        </div>
+      </div>
+      <div class="table"><table style="min-width:1060px">
+        <thead><tr>
+          <th>Название</th><th style="width:120px">Тип</th><th style="width:90px">Сезон</th><th style="width:100px">Регион</th>
+          <th style="width:110px">Версия</th><th style="width:170px">Старт</th><th style="width:120px">Статус</th><th style="width:120px">Действия</th>
+        </tr></thead>
+        <tbody>${rows || `<tr><td colspan="8" style="color:var(--mut);padding:16px">Нет турниров.</td></tr>`}</tbody>
+      </table></div>
+    `;
+  }
+
+  if(tab==="boards"){
+    const srCats=Object.keys(state.leaderboards.speedrun.categories||{});
+    const pModes=Object.keys(state.leaderboards.pvp.modes||{});
+    return `
+      <div class="toolbar" style="margin-bottom:12px">
+        <div class="field" style="min-width:340px">
+          <label>Добавить игрока в рейтинг</label>
+          <div class="hint">Важно: тут можно загрузить фото (аватар). Оно сохранится в localStorage.</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="touchU2">Обновлено: сейчас</button>
+          <button class="btn" id="manageBuckets">Категории/режимы</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <form id="rowForm">
+          <div class="grid">
+            <div class="field" style="grid-column:span 4">
+              <label>Раздел</label>
+              <select name="section" id="secSel" required>
+                <option value="tournaments">Турниры</option>
+                <option value="speedrun">Спидран</option>
+                <option value="pvp">PvP</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column:span 8">
+              <label>Категория / Режим</label>
+              <select name="bucket" id="bucketSel" required></select>
+              <div class="hint">Для “Турниры” будет “—”.</div>
+            </div>
+
+            <div class="field" style="grid-column:span 2"><label>Место</label><input class="input" name="place" type="number" min="1" max="999" required/></div>
+            <div class="field" style="grid-column:span 4"><label>Ник</label><input class="input" name="nick" required/></div>
+            <div class="field" style="grid-column:span 3"><label>Очки/время</label><input class="input" name="points" required/></div>
+            <div class="field" style="grid-column:span 3"><label>Страна</label><input class="input" name="country" placeholder="BY" required/></div>
+
+            <div class="field" style="grid-column:span 4">
+              <label>Платформа</label>
+              <select name="platform" required><option value="Java">Java</option><option value="Bedrock">Bedrock</option></select>
+            </div>
+            <div class="field" style="grid-column:span 8"><label>Пруф URL</label><input class="input" name="proofUrl" placeholder="https://..."/></div>
+
+            <div class="field" style="grid-column:span 4"><label>Версия</label><input class="input" name="version" placeholder="1.16.5" required/></div>
+            <div class="field" style="grid-column:span 4"><label>Регион</label><input class="input" name="region" placeholder="EU" required/></div>
+            <div class="field" style="grid-column:span 4"><label>Сезон</label><input class="input" name="season" placeholder="S1" required/></div>
+
+            <div class="field" style="grid-column:span 12">
+              <label>Фото игрока (аватар)</label>
+              <input class="input" style="padding:10px" type="file" id="rowAvatar" accept="image/*"/>
+              <div class="hint">Можно пропустить. Если загрузите — будет видно в таблице и в топ-3.</div>
+              <div class="preview" id="rowAvatarPrev" style="margin-top:10px;display:none"></div>
+            </div>
+
+            <div style="grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn primary" type="submit">Добавить</button>
+              <button class="btn" type="button" id="rowReset">Очистить</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="panel">
+        <div class="cTitle"><span class="mono">🗑</span><span>Удалить строку</span></div>
+        <div class="hint" style="margin-top:6px">Выберите раздел и категорию/режим — появится список строк.</div>
+        <div style="height:10px"></div>
+        <div class="grid">
+          <div class="field" style="grid-column:span 4">
+            <label>Раздел</label>
+            <select id="listSec">
+              <option value="tournaments">Турниры</option>
+              <option value="speedrun">Спидран</option>
+              <option value="pvp">PvP</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column:span 8">
+            <label>Категория/режим</label>
+            <select id="listBucket"></select>
+          </div>
+        </div>
+        <div style="height:10px"></div>
+        <div id="rowsList"></div>
+      </div>
+    `;
+  }
+
+  if(tab==="apps"){
+    const apps=state.applications.slice().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+    const rows=apps.map(a=>{
+      const tag=a.status==="accepted"?"ok":(a.status==="rejected"?"bad":"warn");
+      return `
+        <tr>
+          <td><span class="mono">${esc(a.user||"—")}</span><div class="hint">${esc(fmtDateTime(a.createdAt))}</div></td>
+          <td><strong>${esc(a.nick)}</strong><div class="hint">Discord: <span class="mono">${esc(a.discord)}</span></div></td>
+          <td>${esc(a.category)}</td>
+          <td><span class="tag ${tag}">${esc(a.status)}</span></td>
+          <td>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn" data-acc="${esc(a.id)}" style="padding:8px 10px;border-radius:12px;box-shadow:none">Принять</button>
+              <button class="btn bad" data-rej="${esc(a.id)}" style="padding:8px 10px;border-radius:12px;box-shadow:none">Отклонить</button>
+              <button class="btn" data-delapp="${esc(a.id)}" style="padding:8px 10px;border-radius:12px;box-shadow:none">Удалить</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+    return `
+      <div class="toolbar" style="margin-bottom:12px">
+        <div class="field" style="min-width:280px">
+          <label>Заявки</label>
+          <div class="hint">Принять/отклонить/удалить (локально).</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn bad" id="clearApps">Очистить все заявки</button>
+        </div>
+      </div>
+      <div class="table"><table style="min-width:980px">
+        <thead><tr>
+          <th style="width:220px">Пользователь</th><th>Игрок</th><th style="width:180px">Категория</th>
+          <th style="width:140px">Статус</th><th style="width:360px">Действия</th>
+        </tr></thead>
+        <tbody>${rows || `<tr><td colspan="5" style="color:var(--mut);padding:16px">Заявок нет.</td></tr>`}</tbody>
+      </table></div>
+    `;
+  }
+
+  // tools
+  return `
+    <div class="grid">
+      <div class="card glass" style="grid-column:span 7">
+        <div class="cardH"><div class="cTitle"><span class="mono">⇩</span><span>Экспорт / Импорт</span></div><span class="tag">JSON</span></div>
+        <div class="hint">Экспорт скачивает JSON со всеми данными. Импорт заменяет данные в браузере.</div>
+        <div style="height:12px"></div>
+        <div class="toolbar">
+          <button class="btn primary" id="exportBtn">Экспорт</button>
+          <label class="btn" style="cursor:pointer">
+            Импорт <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+          </label>
+          <button class="btn bad" id="resetBtn">Сбросить демо</button>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="panel">
+          <div class="cTitle"><span class="mono">⟳</span><span>Обновлено: дата</span></div>
+          <div class="hint" style="margin-top:6px">Нажмите — и в шапке изменится дата обновления.</div>
+          <div style="margin-top:10px"><button class="btn" id="touchU3">Обновлено: сейчас</button></div>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="panel">
+          <div class="cTitle"><span class="mono">⚠</span><span>Пароль админа</span></div>
+          <div class="hint" style="margin-top:6px">
+            Сейчас <span class="mono">ADMIN_PASS_HASH</span> не sha256-hex, поэтому админ входит “в демо-режиме”.
+            Если хотите строгий пароль — сгенерируйте sha256 ниже и вставьте его в код.
+          </div>
+        </div>
+      </div>
+
+      <div class="card glass" style="grid-column:span 5">
+        <div class="cardH"><div class="cTitle"><span class="mono">#</span><span>SHA-256 генератор</span></div><span class="tag">для админа</span></div>
+        <div class="hint">Введите пароль → получите sha256 hex.</div>
+        <div style="height:12px"></div>
+        <form id="hashForm">
+          <div class="field"><label>Пароль</label><input class="input" name="pwd" type="password" required placeholder="Введите пароль"/></div>
+          <div class="field"><label>SHA-256 (hex)</label><input class="input mono" id="hashOut" readonly placeholder="здесь будет hash"/></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn primary" type="submit">Сгенерировать</button>
+            <button class="btn" type="button" id="copyHash">Скопировать</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+function bindAdminTab(tab){
+  if(tab==="tourneys"){
+    $("#addT").onclick=()=>openTournamentEditor(null);
+    $("#touchU").onclick=()=>{ touchUpdated(); toast("ok","Готово","Дата обновления выставлена."); };
+    $$("[data-edit-t]").forEach(b=>b.onclick=()=>openTournamentEditor(b.getAttribute("data-edit-t")));
+  }
+
+  if(tab==="boards"){
+    $("#touchU2").onclick=()=>{ touchUpdated(); toast("ok","Готово","Дата обновления выставлена."); };
+
+    const secSel=$("#secSel"), bucketSel=$("#bucketSel");
+    const fillBuckets=()=>{
+      const sec=secSel.value;
+      let opts=[];
+      if(sec==="tournaments"){ opts=["—"]; bucketSel.disabled=true; }
+      else if(sec==="speedrun"){ opts=Object.keys(state.leaderboards.speedrun.categories||{}); bucketSel.disabled=false; }
+      else { opts=Object.keys(state.leaderboards.pvp.modes||{}); bucketSel.disabled=false; }
+      bucketSel.innerHTML = opts.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join("");
+    };
+    fillBuckets();
+    secSel.onchange=fillBuckets;
+
+    // avatar preview
+    const rowAvatar=$("#rowAvatar"), rowPrev=$("#rowAvatarPrev");
+    rowAvatar.onchange = async ()=>{
+      const f=rowAvatar.files?.[0];
+      if(!f){ rowPrev.style.display="none"; rowPrev.innerHTML=""; return; }
+      try{
+        const url=await fileToDataURL(f);
+        rowPrev.style.display="flex";
+        rowPrev.innerHTML = `${avatarHTML("Player", url, false)}<div class="hint">Предпросмотр фото (будет сохранено).</div>`;
+      }catch(e){
+        toast("err","Ошибка","Не удалось прочитать фото.");
+      }
+    };
+
+    $("#rowReset").onclick=()=>{ $("#rowForm").reset(); rowPrev.style.display="none"; rowPrev.innerHTML=""; fillBuckets(); };
+
+    $("#rowForm").onsubmit = async (e)=>{
+      e.preventDefault();
+      const fd=new FormData(e.target);
+      const section=String(fd.get("section"));
+      const bucket=String(fd.get("bucket"));
+      const place=parseInt(fd.get("place"),10);
+      const nick=String(fd.get("nick")||"").trim();
+      const points=String(fd.get("points")||"").trim();
+      const country=String(fd.get("country")||"").trim().toUpperCase();
+      const platform=String(fd.get("platform")||"").trim();
+      const proofUrl=String(fd.get("proofUrl")||"").trim();
+      const version=String(fd.get("version")||"").trim();
+      const region=String(fd.get("region")||"").trim();
+      const season=String(fd.get("season")||"").trim();
+
+      if(!Number.isFinite(place)||place<1) return toast("err","Ошибка","Место должно быть >= 1.");
+      if(nick.length<2) return toast("err","Ошибка","Ник слишком короткий.");
+
+      let avatar="";
+      const file=rowAvatar.files?.[0];
+      if(file){
+        try{ avatar = await fileToDataURL(file); }
+        catch(e){ return toast("err","Ошибка","Фото не удалось загрузить."); }
+      }
+
+      const row={place,nick,points,country,platform,proofUrl,version,region,season,updatedAt:isoNow(),avatar};
+
+      if(section==="tournaments"){
+        state.leaderboards.tournaments.entries.push(row);
+        state.leaderboards.tournaments.updatedAt=row.updatedAt;
+      }else if(section==="speedrun"){
+        if(!state.leaderboards.speedrun.categories[bucket]) state.leaderboards.speedrun.categories[bucket]=[];
+        state.leaderboards.speedrun.categories[bucket].push(row);
+        state.leaderboards.speedrun.updatedAt=row.updatedAt;
+      }else{
+        if(!state.leaderboards.pvp.modes[bucket]) state.leaderboards.pvp.modes[bucket]=[];
+        state.leaderboards.pvp.modes[bucket].push(row);
+        state.leaderboards.pvp.updatedAt=row.updatedAt;
+      }
+
+      touchUpdated();
+      saveState();
+      toast("ok","Добавлено","Игрок добавлен в рейтинг (с фото, если было).");
+      renderAdmin();
+    };
+
+    // delete rows list
+    const listSec=$("#listSec"), listBucket=$("#listBucket"), rowsList=$("#rowsList");
+    const fillListBuckets=()=>{
+      const sec=listSec.value;
+      let opts=[];
+      if(sec==="tournaments"){ opts=["—"]; }
+      else if(sec==="speedrun"){ opts=Object.keys(state.leaderboards.speedrun.categories||{}); }
+      else { opts=Object.keys(state.leaderboards.pvp.modes||{}); }
+      listBucket.innerHTML = opts.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join("");
+      renderRowsList();
+    };
+    const getRowsRef=()=>{
+      const sec=listSec.value, bucket=listBucket.value;
+      if(sec==="tournaments") return {arr:state.leaderboards.tournaments.entries, setUpdated:(x)=>state.leaderboards.tournaments.updatedAt=x};
+      if(sec==="speedrun") return {arr:state.leaderboards.speedrun.categories[bucket]||[], setUpdated:(x)=>state.leaderboards.speedrun.updatedAt=x};
+      return {arr:state.leaderboards.pvp.modes[bucket]||[], setUpdated:(x)=>state.leaderboards.pvp.updatedAt=x};
+    };
+    function renderRowsList(){
+      const ref=getRowsRef();
+      const arr=ref.arr.slice().sort((a,b)=>(a.place||999)-(b.place||999));
+      rowsList.innerHTML = `
+        <div class="table"><table style="min-width:980px">
+          <thead><tr><th style="width:80px">#</th><th>Игрок</th><th style="width:160px">Очки/время</th>
+            <th style="width:120px">Версия</th><th style="width:120px">Регион</th><th style="width:90px">Сезон</th><th style="width:140px">Действия</th></tr></thead>
+          <tbody>
+            ${arr.map((r,idx)=>`
+              <tr>
+                <td class="rank">${esc(r.place)}</td>
+                <td><div class="av">${avatarHTML(r.nick, r.avatar, false)}<div><div style="font-weight:900">${esc(r.nick)}</div><div class="hint">${esc(r.country)} • ${esc(r.platform)}</div></div></div></td>
+                <td><span class="mono">${esc(r.points)}</span></td>
+                <td>${esc(r.version)}</td>
+                <td>${esc(r.region)}</td>
+                <td>${esc(r.season)}</td>
+                <td><button class="btn bad" data-delrow="${idx}" style="padding:8px 10px;border-radius:12px;box-shadow:none">Удалить</button></td>
+              </tr>
+            `).join("") || `<tr><td colspan="7" style="color:var(--mut);padding:16px">Нет строк.</td></tr>`}
+          </tbody>
+        </table></div>
+      `;
+      $$("[data-delrow]").forEach(b=>{
+        b.onclick=()=>{
+          const i=parseInt(b.getAttribute("data-delrow"),10);
+          const row=arr[i];
+          if(!row) return;
+          const j=ref.arr.findIndex(x=>x.place===row.place && x.nick===row.nick && x.points===row.points && x.version===row.version && x.region===row.region && x.season===row.season);
+          if(j>=0){
+            ref.arr.splice(j,1);
+            ref.setUpdated(isoNow());
+            touchUpdated();
+            saveState();
+            toast("ok","Удалено","Строка удалена.");
+            renderAdmin();
+          }
+        };
+      });
+    }
+    listSec.onchange=fillListBuckets;
+    listBucket.onchange=renderRowsList;
+    fillListBuckets();
+
+    // manage buckets
+    $("#manageBuckets").onclick=()=>{
+      const sr=Object.keys(state.leaderboards.speedrun.categories||{});
+      const pv=Object.keys(state.leaderboards.pvp.modes||{});
+      showModal("Категории / режимы", `
+        <div class="grid">
+          <div class="panel" style="grid-column:span 6">
+            <div class="cTitle"><span class="mono">⏱</span><span>Категории спидрана</span></div>
+            <div class="hint" style="margin-top:6px">Добавить/удалить категорию.</div>
+            <div style="height:10px"></div>
+            <div class="field"><label>Новая категория</label><input class="input" id="newSrCat" placeholder="например: Any% (1.20.1)"/></div>
+            <div style="margin-top:10px"><button class="btn primary" id="addSrCat" type="button">Добавить</button></div>
+            <div style="height:10px"></div>
+            ${sr.map(c=>`
+              <div class="toolbar" style="justify-content:space-between">
+                <span class="chip">${esc(c)}</span>
+                <button class="btn bad" data-del-sr="${esc(c)}" type="button">Удалить</button>
+              </div>
+            `).join("") || `<div class="hint">Нет категорий.</div>`}
+          </div>
+
+          <div class="panel" style="grid-column:span 6">
+            <div class="cTitle"><span class="mono">⚔</span><span>Режимы PvP</span></div>
+            <div class="hint" style="margin-top:6px">Добавить/удалить режим.</div>
+            <div style="height:10px"></div>
+            <div class="field"><label>Новый режим</label><input class="input" id="newPvpMode" placeholder="например: UHC"/></div>
+            <div style="margin-top:10px"><button class="btn primary" id="addPvpMode" type="button">Добавить</button></div>
+            <div style="height:10px"></div>
+            ${pv.map(m=>`
+              <div class="toolbar" style="justify-content:space-between">
+                <span class="chip">${esc(m)}</span>
+                <button class="btn bad" data-del-pv="${esc(m)}" type="button">Удалить</button>
+              </div>
+            `).join("") || `<div class="hint">Нет режимов.</div>`}
+          </div>
+        </div>
+      `);
+
+      $("#addSrCat").onclick=()=>{
+        const name=String($("#newSrCat").value||"").trim();
+        if(name.length<3) return toast("err","Ошибка","Слишком короткое название.");
+        if(state.leaderboards.speedrun.categories[name]) return toast("warn","Внимание","Такая категория уже есть.");
+        state.leaderboards.speedrun.categories[name]=[];
+        touchUpdated(); saveState();
+        toast("ok","Добавлено","Категория добавлена.");
+        hideModal(); renderAdmin();
+      };
+      $("#addPvpMode").onclick=()=>{
+        const name=String($("#newPvpMode").value||"").trim();
+        if(name.length<3) return toast("err","Ошибка","Слишком короткое название.");
+        if(state.leaderboards.pvp.modes[name]) return toast("warn","Внимание","Такой режим уже есть.");
+        state.leaderboards.pvp.modes[name]=[];
+        touchUpdated(); saveState();
+        toast("ok","Добавлено","Режим добавлен.");
+        hideModal(); renderAdmin();
+      };
+      $$("[data-del-sr]").forEach(b=>b.onclick=()=>{
+        const k=b.getAttribute("data-del-sr");
+        if(Object.keys(state.leaderboards.speedrun.categories).length<=1) return toast("warn","Нельзя","Должна остаться хотя бы 1 категория.");
+        delete state.leaderboards.speedrun.categories[k];
+        touchUpdated(); saveState(); toast("ok","Удалено","Категория удалена.");
+        hideModal(); renderAdmin();
+      });
+      $$("[data-del-pv]").forEach(b=>b.onclick=()=>{
+        const k=b.getAttribute("data-del-pv");
+        if(Object.keys(state.leaderboards.pvp.modes).length<=1) return toast("warn","Нельзя","Должен остаться хотя бы 1 режим.");
+        delete state.leaderboards.pvp.modes[k];
+        touchUpdated(); saveState(); toast("ok","Удалено","Режим удалён.");
+        hideModal(); renderAdmin();
+      });
+    };
+  }
+
+  if(tab==="apps"){
+    $("#clearApps").onclick=()=>{
+      state.applications=[];
+      touchUpdated(); saveState();
+      toast("ok","Готово","Все заявки очищены.");
+      renderAdmin();
+    };
+    $$("[data-acc]").forEach(b=>b.onclick=()=>{
+      const id=b.getAttribute("data-acc");
+      const a=state.applications.find(x=>x.id===id);
+      if(!a) return;
+      a.status="accepted";
+      touchUpdated(); saveState();
+      toast("ok","Принято","Заявка принята.");
+      renderAdmin();
+    });
+    $$("[data-rej]").forEach(b=>b.onclick=()=>{
+      const id=b.getAttribute("data-rej");
+      const a=state.applications.find(x=>x.id===id);
+      if(!a) return;
+      a.status="rejected";
+      touchUpdated(); saveState();
+      toast("ok","Отклонено","Заявка отклонена.");
+      renderAdmin();
+    });
+    $$("[data-delapp]").forEach(b=>b.onclick=()=>{
+      const id=b.getAttribute("data-delapp");
+      const i=state.applications.findIndex(x=>x.id===id);
+      if(i<0) return;
+      state.applications.splice(i,1);
+      touchUpdated(); saveState();
+      toast("ok","Удалено","Заявка удалена.");
+      renderAdmin();
+    });
+  }
+
+  if(tab==="tools"){
+    $("#exportBtn").onclick=()=>{
+      downloadText(`nexly_rankings_export_${Date.now()}.json`, JSON.stringify(state,null,2));
+      toast("ok","Экспорт","JSON скачан.");
+    };
+    $("#importFile").onchange=async (e)=>{
+      const file=e.target.files?.[0];
+      if(!file) return;
+      try{
+        const text=await file.text();
+        const obj=JSON.parse(text);
+        if(!obj || typeof obj!=="object" || !obj.meta || !obj.leaderboards) throw new Error("bad");
+        state=obj;
+        saveState();
+        toast("ok","Импорт","Данные импортированы.");
+        syncUI(); renderAdmin();
+      }catch(err){
+        toast("err","Ошибка","Не удалось импортировать JSON (неверный формат).");
+      }finally{
+        e.target.value="";
+      }
+    };
+    $("#resetBtn").onclick=resetDemo;
+    $("#touchU3").onclick=()=>{ touchUpdated(); toast("ok","Готово","Дата обновления выставлена."); };
+
+    $("#hashForm").onsubmit=async (e)=>{
+      e.preventDefault();
+      const pwd=String(new FormData(e.target).get("pwd")||"");
+      const h=await sha256Hex(pwd);
+      $("#hashOut").value=h;
+      toast("ok","Готово","Hash сгенерирован.");
+    };
+    $("#copyHash").onclick=async ()=>{
+      const v=$("#hashOut").value||"";
+      if(!v) return toast("warn","Пусто","Сначала сгенерируйте hash.");
+      try{
+        await navigator.clipboard.writeText(v);
+        toast("ok","Скопировано","Hash скопирован.");
+      }catch(e){
+        $("#hashOut").focus(); $("#hashOut").select();
+        toast("warn","Внимание","Автокопирование недоступно. Нажмите Ctrl+C.");
+      }
+    };
+  }
+}
+
+function openTournamentEditor(id){
+  const isNew=!id;
+  const src = isNew ? null : state.tournaments.find(x=>x.id===id);
+  if(!isNew && !src) return toast("err","Ошибка","Турнир не найден.");
+
+  const t = isNew ? {
+    id:uid("t"), name:"", type:"tournament", season:"S1", region:"EU", version:"1.16.5",
+    dateStart:new Date().toISOString(), dateEnd:new Date(Date.now()+3600000).toISOString(),
+    location:"Online", status:"scheduled", winnerNick:"", winnerAvatar:"", proofUrl:""
+  } : {...src};
+
+  const toLocal = (iso)=> {
+    const d=new Date(iso);
+    const pad=n=>String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  showModal(isNew?"Новый турнир":"Редактировать турнир", `
+    <form id="tEdit">
+      <div class="grid">
+        <div class="field" style="grid-column:span 12"><label>Название</label><input class="input" name="name" required value="${esc(t.name)}"/></div>
+
+        <div class="field" style="grid-column:span 4">
+          <label>Тип</label>
+          <select name="type">
+            <option value="tournament" ${t.type==="tournament"?"selected":""}>tournament</option>
+            <option value="speedrun" ${t.type==="speedrun"?"selected":""}>speedrun</option>
+            <option value="pvp" ${t.type==="pvp"?"selected":""}>pvp</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:span 4"><label>Сезон</label><input class="input" name="season" value="${esc(t.season)}"/></div>
+        <div class="field" style="grid-column:span 4"><label>Регион</label><input class="input" name="region" value="${esc(t.region)}"/></div>
+
+        <div class="field" style="grid-column:span 4"><label>Версия</label><input class="input" name="version" value="${esc(t.version)}"/></div>
+        <div class="field" style="grid-column:span 4"><label>Место</label><input class="input" name="location" value="${esc(t.location||"")}"/></div>
+        <div class="field" style="grid-column:span 4">
+          <label>Статус</label>
+          <select name="status">
+            <option value="scheduled" ${t.status==="scheduled"?"selected":""}>scheduled</option>
+            <option value="finished" ${t.status==="finished"?"selected":""}>finished</option>
+          </select>
+        </div>
+
+        <div class="field" style="grid-column:span 6"><label>Старт</label><input class="input" type="datetime-local" name="dateStart" value="${esc(toLocal(t.dateStart))}"/></div>
+        <div class="field" style="grid-column:span 6"><label>Финиш</label><input class="input" type="datetime-local" name="dateEnd" value="${esc(toLocal(t.dateEnd))}"/></div>
+
+        <div class="field" style="grid-column:span 6"><label>Победитель (ник)</label><input class="input" name="winnerNick" value="${esc(t.winnerNick||"")}"/></div>
+        <div class="field" style="grid-column:span 6"><label>Пруф URL</label><input class="input" name="proofUrl" value="${esc(t.proofUrl||"")}"/></div>
+
+        <div class="field" style="grid-column:span 12">
+          <label>Фото победителя</label>
+          <input class="input" style="padding:10px" type="file" id="tWinnerAvatar" accept="image/*"/>
+          <div class="hint">Можно оставить пустым. Если загрузите — будет видно в списке турниров.</div>
+          <div class="preview" id="tAvaPrev" style="margin-top:10px">
+            ${avatarHTML(t.winnerNick||"Winner", t.winnerAvatar||"", false)}
+            <div class="hint">Текущее фото (или инициалы).</div>
+            <button class="btn" type="button" id="clearWinnerPhoto" style="padding:8px 10px;border-radius:12px;box-shadow:none">Удалить фото</button>
+          </div>
+        </div>
+
+        <div style="grid-column:span 12;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn primary" type="submit">Сохранить</button>
+          ${isNew?"" : `<button class="btn bad" type="button" id="delT">Удалить</button>`}
+          <button class="btn" type="button" id="closeT">Закрыть</button>
+        </div>
+      </div>
+    </form>
+  `);
+
+  $("#closeT").onclick=hideModal;
+
+  $("#clearWinnerPhoto").onclick=()=>{
+    t.winnerAvatar="";
+    $("#tAvaPrev").innerHTML = `${avatarHTML(t.winnerNick||"Winner", "", false)}<div class="hint">Фото удалено (будут инициалы).</div><button class="btn" type="button" id="clearWinnerPhoto" style="padding:8px 10px;border-radius:12px;box-shadow:none">Удалить фото</button>`;
+    // re-bind itself
+    $("#clearWinnerPhoto").onclick=()=>{ t.winnerAvatar=""; toast("ok","Готово","Фото очищено."); };
+    toast("ok","Готово","Фото очищено.");
+  };
+
+  const fileInput=$("#tWinnerAvatar");
+  fileInput.onchange = async ()=>{
+    const f=fileInput.files?.[0];
+    if(!f) return;
+    try{
+      t.winnerAvatar = await fileToDataURL(f);
+      $("#tAvaPrev").innerHTML = `${avatarHTML(t.winnerNick||"Winner", t.winnerAvatar, false)}<div class="hint">Новое фото выбрано.</div><button class="btn" type="button" id="clearWinnerPhoto" style="padding:8px 10px;border-radius:12px;box-shadow:none">Удалить фото</button>`;
+      $("#clearWinnerPhoto").onclick=()=>{ t.winnerAvatar=""; toast("ok","Готово","Фото очищено."); };
+    }catch(e){
+      toast("err","Ошибка","Не удалось прочитать фото.");
+    }
+  };
+
+  if(!isNew){
+    $("#delT").onclick=()=>{
+      const i=state.tournaments.findIndex(x=>x.id===t.id);
+      if(i>=0){
+        state.tournaments.splice(i,1);
+        touchUpdated(); saveState();
+        toast("ok","Удалено","Турнир удалён.");
+        hideModal();
+        renderAdmin();
+      }
+    };
+  }
+
+  $("#tEdit").onsubmit=async (e)=>{
+    e.preventDefault();
+    const fd=new FormData(e.target);
+    const obj={
+      id:t.id,
+      name:String(fd.get("name")||"").trim(),
+      type:String(fd.get("type")||"tournament"),
+      season:String(fd.get("season")||"").trim()||"S1",
+      region:String(fd.get("region")||"").trim()||"EU",
+      version:String(fd.get("version")||"").trim()||"1.16.5",
+      location:String(fd.get("location")||"").trim()||"Online",
+      status:String(fd.get("status")||"scheduled"),
+      dateStart:new Date(String(fd.get("dateStart")||"")).toISOString(),
+      dateEnd:new Date(String(fd.get("dateEnd")||"")).toISOString(),
+      winnerNick:String(fd.get("winnerNick")||"").trim(),
+      winnerAvatar:String(t.winnerAvatar||""),
+      proofUrl:String(fd.get("proofUrl")||"").trim(),
+      updatedAt:isoNow()
+    };
+    if(!obj.name) return toast("err","Ошибка","Название обязательно.");
+    if(new Date(obj.dateEnd) < new Date(obj.dateStart)) return toast("err","Ошибка","Дата конца раньше даты начала.");
+
+    if(isNew) state.tournaments.push(obj);
+    else{
+      const i=state.tournaments.findIndex(x=>x.id===obj.id);
+      if(i>=0) state.tournaments[i]=obj;
+      else state.tournaments.push(obj);
+    }
+    touchUpdated(); saveState();
+    toast("ok","Сохранено","Турнир сохранён.");
+    hideModal();
+    renderAdmin();
+  };
+}
+
+/* =========================
+   Router
+   ========================= */
+function route(){
+  syncUI();
+  const h=location.hash || "#/";
+  if(h==="#/") return renderHome();
+  if(h.startsWith("#/tournaments")) return renderTournaments();
+  if(h.startsWith("#/speedrun")) return renderSpeedrun();
+  if(h.startsWith("#/pvp")) return renderPvp();
+  if(h.startsWith("#/calendar")) return renderCalendar();
+  if(h.startsWith("#/apply")) return renderApply();
+  if(h.startsWith("#/support")) return renderSupport();
+  if(h.startsWith("#/admin")) return renderAdmin();
+  location.hash="#/";
+}
+window.addEventListener("hashchange", route);
+
+/* start */
+if(!location.hash) location.hash="#/";
+route();
+</script>
+</body>
+</html>
